@@ -34,6 +34,7 @@ public class HomeFragment extends Fragment {
     /*
     public void test(android.view.View view){
         notify();
+        baksteen
     }
     */
 }
