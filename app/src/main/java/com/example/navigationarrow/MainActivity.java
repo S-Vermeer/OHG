@@ -21,8 +21,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     TextView txtLat;
     String lat;
     String provider;
-    protected String latitude,longitude;
-    protected boolean gps_enabled,network_enabled;
+    protected String latitude, longitude;
+    protected boolean gps_enabled, network_enabled;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(navView, navController);
     }
+
     @Override
     public void onLocationChanged(Location location) {
         txtLat = (TextView) findViewById(R.id.text_test);
@@ -52,19 +53,18 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
     @Override
     public void onProviderDisabled(String provider) {
-        Log.d("Latitude","disable");
+        Log.d("Latitude", "disable");
     }
 
     @Override
     public void onProviderEnabled(String provider) {
-        Log.d("Latitude","enable");
+        Log.d("Latitude", "enable");
     }
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
-        Log.d("Latitude","status");
+        Log.d("Latitude", "status");
     }
-
 
 
 }

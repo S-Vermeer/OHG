@@ -27,12 +27,8 @@
             app:defaultNavHost="true"
             app:layout_constraintBottom_toTopOf="@id/nav_view"
             app:navGraph="@navigation/mobile_navigation"
-            app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"/>
-    <Switch
-            android:text="Switch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:id="@+id/switch1" tools:layout_editor_absoluteY="249dp"
-            tools:layout_editor_absoluteX="129dp"/>
+            app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginBottom="180dp" app:layout_constraintHorizontal_bias="1.0"/>
 
     <TextView
             android:id="@+id/text_test"
