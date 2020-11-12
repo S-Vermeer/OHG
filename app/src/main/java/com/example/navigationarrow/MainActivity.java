@@ -3,11 +3,13 @@
 package com.example.navigationarrow;
 
 import android.content.Context;
+import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,15 +20,8 @@ import androidx.navigation.ui.NavigationUI;
 
 public class MainActivity extends AppCompatActivity implements LocationListener {
     protected LocationManager locationManager;
-    protected LocationListener locationListener;
-    protected Context context;
     TextView txtLat;
     TextView textView;
-    String gameState;
-    String lat;
-    String provider;
-    protected String latitude, longitude;
-    protected boolean gps_enabled, network_enabled;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +56,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(navView, navController);
+    }
+
+    public void toAdventureActivity(android.view.View view){
+        Intent intent = new Intent(this, AdventureActivity.class);
+        startActivity(intent);
     }
 
     @Override
