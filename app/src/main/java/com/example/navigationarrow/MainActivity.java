@@ -2,15 +2,13 @@
 
 package com.example.navigationarrow;
 
-import android.content.Context;
+import android.Manifest;
 import android.content.Intent;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.widget.TextView;
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
@@ -18,10 +16,8 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
-public class MainActivity extends AppCompatActivity implements LocationListener {
-    protected LocationManager locationManager;
-    TextView txtLat;
-    TextView textView;
+public class MainActivity extends AppCompatActivity {
+    public boolean gotPermissions;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,13 +35,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         // set the user interface layout for this activity
         // the layout file is defined in the project res/layout/main_activity.xml file
         setContentView(R.layout.activity_main);
-        textView = (TextView) findViewById(R.id.text_view);
-
-
-        txtLat = (TextView) findViewById(R.id.text_test);
-
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
 
         BottomNavigationView navView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
@@ -56,32 +45,51 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(navView, navController);
+
+
     }
 
-    public void toAdventureActivity(android.view.View view){
-        Intent intent = new Intent(this, AdventureActivity.class);
-        startActivity(intent);
+    public void toAdventureActivity(android.view.View view) {
+        if(gotPermissions){
+            Intent intent = new Intent(this, AdventureActivity.class);
+            startActivity(intent);
+        } else {
+            checkPermission();
+        }
+
     }
+
+    public void checkPermission() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && checkSelfPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.INTERNET) == PackageManager.PERMISSION_GRANTED) {
+                if (checkSelfPermission(Manifest.permission.INTERNET) == PackageManager.PERMISSION_GRANTED) {
+                    gotPermissions = true;
+                } else {
+                    gotPermissions = false;
+                    ActivityCompat.requestPermissions(this, new String[]{
+                            Manifest.permission.INTERNET,}, 2);
+                }
+            } else {
+                gotPermissions = false;
+                ActivityCompat.requestPermissions(this, new String[]{
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION,}, 1);
+            }
+
+        }
+    }
+
 
     @Override
-    public void onLocationChanged(Location location) {
-        txtLat = (TextView) findViewById(R.id.text_test);
-        txtLat.setText("Latitude:" + location.getLatitude() + ", Longitude:" + location.getLongitude());
-    }
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+            //doSomething
+        } else if (requestCode == 2 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            //doSomething
+        } else {
+            checkPermission();
+        }
 
-    @Override
-    public void onProviderDisabled(String provider) {
-        Log.d("Latitude", "disable");
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-        Log.d("Latitude", "enable");
-    }
-
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-        Log.d("Latitude", "status");
     }
 
 
