@@ -1,5 +1,7 @@
 package com.example.navigationarrow.ui.navigation;
 
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,8 +16,10 @@ import com.example.navigationarrow.R;
 
 public class NavigationFragment extends Fragment {
     private NavigationViewModel navigationViewModel;
+    protected LocationManager locationManager;
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
         navigationViewModel = ViewModelProviders.of(this).get(NavigationViewModel.class);
         View root = inflater.inflate(R.layout.fragment_navigation, container, false);
         final TextView textView = root.findViewById(R.id.text_navigation);
@@ -29,4 +33,6 @@ public class NavigationFragment extends Fragment {
 
         return root;
     }
+
+
 }

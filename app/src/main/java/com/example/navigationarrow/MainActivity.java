@@ -1,3 +1,5 @@
+//≧◉◡◉≦ TOFIX  ≧◉◡◉≦
+
 package com.example.navigationarrow;
 
 import android.content.Context;
@@ -19,6 +21,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     protected LocationListener locationListener;
     protected Context context;
     TextView txtLat;
+    TextView textView;
+    String gameState;
     String lat;
     String provider;
     protected String latitude, longitude;
@@ -26,8 +30,22 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // call the super class onCreate to complete the creation of activity like
+        // the view hierarchy
         super.onCreate(savedInstanceState);
+
+        // recovering the instance state
+        if (savedInstanceState != null) {
+            //≧◉◡◉≦ TOFIX uncomment when game_state_key is found  ≧◉◡◉≦
+
+            //gameState = savedInstanceState.getString(GAME_STATE_KEY);
+        }
+
+        // set the user interface layout for this activity
+        // the layout file is defined in the project res/layout/main_activity.xml file
         setContentView(R.layout.activity_main);
+        textView = (TextView) findViewById(R.id.text_view);
+
 
         txtLat = (TextView) findViewById(R.id.text_test);
 
@@ -64,6 +82,23 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
         Log.d("Latitude", "status");
+    }
+
+
+    //≧◉◡◉≦ TOFIX GAME_STATE_KEY etc. How to access keys  ≧◉◡◉≦
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        //textView.setText(savedInstanceState.getString(TEXT_VIEW_KEY));
+    }
+
+    // invoked when the activity may be temporarily destroyed, save the instance state here
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        //outState.putString(GAME_STATE_KEY, gameState);
+        //outState.putString(TEXT_VIEW_KEY, textView.getText());
+
+        // call superclass to save any view hierarchy
+        super.onSaveInstanceState(outState);
     }
 
 
