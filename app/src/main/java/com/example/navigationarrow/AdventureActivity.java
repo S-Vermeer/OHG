@@ -173,9 +173,50 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
 
         /* ᕙ(`▿´)ᕗ if the location has changed, the text should be updated to the corresponding coordinates.
         Currently also features longitude and latitude for control purposes ᕙ(`▿´)ᕗ */
+
+        double distance = calculateDistanceLongLatPoints(location.getLatitude(),location.getLatitude() + 0.5, location.getLongitude(), location.getLongitude() + 0.5);
+
         txtLat = (TextView) findViewById(R.id.gpsText);
-        txtLat.setText("Latitude:" + getLongOrLatitude(getGPSValue(location, "lat"), "lat") + ", \n" + location.getLatitude() + " \n Longitude:" + getLongOrLatitude(getGPSValue(location, "long"), "long") + "\n " + location.getLongitude());
+        txtLat.setText("Latitude:" + getLongOrLatitude(getGPSValue(location, "lat"), "lat") + ", \n" + location.getLatitude() + " \n Longitude:" + getLongOrLatitude(getGPSValue(location, "long"), "long") + "\n " + location.getLongitude() + "\n " + distance);
+
+
     }
+
+
+    /* ʕ•́ᴥ•̀ʔっ NAVIGATION TO NEXT COORDINATE ʕ•́ᴥ•̀ʔっ */
+
+    /* ᕙ(`▿´)ᕗ HAVERSINE FORMULE:
+    distance between two coordinates = 2 * radiusEarth * (arcsin ( root of (sine^2(difference between latitudes / 2)
+    + cosine(latitude 1) * cosine(latitude 2) * sine^2(difference between longitudes / 2))))   ᕙ(`▿´)ᕗ */
+
+    //(•◡•)/ distance (meters) between two coordinates (give long and latitude of two points)  (•◡•)/
+    public double calculateDistanceLongLatPoints(double lat1, double lat2, double long1, double long2) {
+        double radiusEarth = 6371e3;
+
+        double radLat1 = lat1 * Math.PI / 180;
+        double radLat2 = lat2 * Math.PI / 180;
+        double radLong1 = long1 * Math.PI / 180;
+        double radLong2 = long2 * Math.PI / 180;
+
+
+        double sineSquaredDifLatitudes = Math.pow(Math.sin((radLat2 - radLat1) / 2), 2);
+        double cosineLat1 = Math.cos(radLat1);
+        double cosineLat2 = Math.cos(radLat2);
+        double sineSquaredDifLongitudes = Math.pow(Math.sin((radLong2 - radLong1) / 2), 2);
+
+        double squareRoot = Math.sqrt(sineSquaredDifLatitudes + (cosineLat1 * cosineLat2 * sineSquaredDifLongitudes));
+        double arcsine = Math.asin(squareRoot);
+
+        double haversine = (2 * radiusEarth) * arcsine;
+
+        return haversine;
+    }
+
+
+
+
+
+    /* ʕ•́ᴥ•̀ʔっ CALCULATE DISTANCE BETWEEN TWO COORDINATES END ʕ•́ᴥ•̀ʔっ */
 
 
     @Override
