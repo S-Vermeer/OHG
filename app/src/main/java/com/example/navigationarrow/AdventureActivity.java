@@ -1,6 +1,6 @@
 //ʕ•́ᴥ•̀ʔっ Header ʕ•́ᴥ•̀ʔっ
 //(•◡•)/ Sub-header (•◡•)/
-
+//ᕙ(`▿´)ᕗ Explanation of code ᕙ(`▿´)ᕗ
 package com.example.navigationarrow;
 
 import android.content.Context;
@@ -42,11 +42,12 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
     /* ʕ•́ᴥ•̀ʔっ GPS VAR ʕ•́ᴥ•̀ʔっ */
     protected LocationManager locationManager;
     TextView txtLat;
-    TextView textView;
     /* ʕ•́ᴥ•̀ʔっ GPS VAR END ʕ•́ᴥ•̀ʔっ */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        //ᕙ(`▿´)ᕗ Mandatory in onCreate ᕙ(`▿´)ᕗ
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_adventure);
 
@@ -69,6 +70,7 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
                 SensorManager.getRotationMatrix(floatRotationMatrix, null, floatGravity, floatGeoMagnetic);
                 SensorManager.getOrientation(floatRotationMatrix, floatOrientation);
 
+                //ᕙ(`▿´)ᕗ Change direction of compass based on sensor data ᕙ(`▿´)ᕗ
                 imageView.setRotation((float) (-floatOrientation[0] * 180 / 3.14159));
             }
 
@@ -87,6 +89,7 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
                 SensorManager.getRotationMatrix(floatRotationMatrix, null, floatGravity, floatGeoMagnetic);
                 SensorManager.getOrientation(floatRotationMatrix, floatOrientation);
 
+                //ᕙ(`▿´)ᕗ Change direction of compass based on sensor data ᕙ(`▿´)ᕗ
                 imageView.setRotation((float) (-floatOrientation[0] * 180 / 3.14159));
 
             }
@@ -111,6 +114,9 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
 
     }
 
+    // ʕ•́ᴥ•̀ʔっ Making GPS coordinates visible in DMS notation ʕ•́ᴥ•̀ʔっ
+
+    //(•◡•)/ Get wind direction letter from long- and latitude (•◡•)/
     public char windDir(String longOrLat, double value) {
         char windDir;
         if (longOrLat == "lat" && value >= 0) {
@@ -122,17 +128,19 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
         } else if (longOrLat == "long" && value < 0) {
             windDir = 'W';
         } else {
-            windDir = 'X';
+            windDir = 'X'; //ᕙ(`▿´)ᕗ In case something goes wrong, still initialisation of windDir ᕙ(`▿´)ᕗ
         }
         return windDir;
     }
 
-    public String getLongOrLatitude(double gpsValue, String longOrLat){
+    public String getLongOrLatitude(double gpsValue, String longOrLat) {
         char windDir = windDir(longOrLat, gpsValue);
-        if(gpsValue < 0){
+        if (gpsValue < 0) {
             gpsValue = gpsValue * -1;
         }
 
+        /* ᕙ(`▿´)ᕗ DMS notation is both for longitude and latitude the full value (so no decimals), then get the
+        remaining value * 60 and the full value from that and repeat once more. Its the most commonly used formatting of GPS coordinates ᕙ(`▿´)ᕗ */
         double gpsHours = Math.floor(gpsValue);
         String hourStr = String.format("%.0f", gpsHours);
         double gpsMin = Math.floor((gpsValue - gpsHours) * 60);
@@ -145,25 +153,30 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
 
     public double getGPSValue(Location location, String longOrLat) {
         double longLatValue;
-        double gpsValue;
-        if(longOrLat == "lat"){
+        if (longOrLat == "lat") {
             longLatValue = location.getLatitude();
-        } else if (longOrLat == "long"){
+        } else if (longOrLat == "long") {
             longLatValue = location.getLongitude();
 
         } else {
-            longLatValue = 69696969;
+            longLatValue = 69696969; //ᕙ(`▿´)ᕗ Mock value in case something goes wrong with the connection to the sensors ᕙ(`▿´)ᕗ
         }
-        gpsValue = longLatValue;
 
-        return gpsValue;
+        return longLatValue;
     }
+
+    //ʕ•́ᴥ•̀ʔっ MAKING  GPS COORDINATES VISIBLE IN DMS NOTATION END ʕ•́ᴥ•̀ʔっ
+
 
     @Override
     public void onLocationChanged(Location location) {
+
+        /* ᕙ(`▿´)ᕗ if the location has changed, the text should be updated to the corresponding coordinates.
+        Currently also features longitude and latitude for control purposes ᕙ(`▿´)ᕗ */
         txtLat = (TextView) findViewById(R.id.gpsText);
-        txtLat.setText("Latitude:" + getLongOrLatitude(getGPSValue(location,"lat"), "lat") + ", \n" + location.getLatitude() + " \n Longitude:" + getLongOrLatitude(getGPSValue(location,"long"), "long") + "\n " + location.getLongitude());
+        txtLat.setText("Latitude:" + getLongOrLatitude(getGPSValue(location, "lat"), "lat") + ", \n" + location.getLatitude() + " \n Longitude:" + getLongOrLatitude(getGPSValue(location, "long"), "long") + "\n " + location.getLongitude());
     }
+
 
     @Override
     public void onProviderDisabled(String provider) {

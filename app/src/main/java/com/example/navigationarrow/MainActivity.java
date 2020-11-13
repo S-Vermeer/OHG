@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -49,7 +50,10 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void toAdventureActivity(android.view.View view) {
+    //ᕙ(`▿´)ᕗ Go to different activity, as to not crowd the main ᕙ(`▿´)ᕗ
+
+    public void toAdventureActivity(View view) {
+        checkPermission();
         if(gotPermissions){
             Intent intent = new Intent(this, AdventureActivity.class);
             startActivity(intent);
@@ -60,16 +64,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void checkPermission() {
+        //ᕙ(`▿´)ᕗ Check whether the phone has permissions to access location ... ᕙ(`▿´)ᕗ
         if (Build.VERSION.SDK_INT >= 23) {
             if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && checkSelfPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.INTERNET) == PackageManager.PERMISSION_GRANTED) {
+                // Check whether the phone has permission to access the internet... ᕙ(`▿´)ᕗ
                 if (checkSelfPermission(Manifest.permission.INTERNET) == PackageManager.PERMISSION_GRANTED) {
                     gotPermissions = true;
                 } else {
+                    //ᕙ(`▿´)ᕗ ... or request internet permission ᕙ(`▿´)ᕗ
                     gotPermissions = false;
                     ActivityCompat.requestPermissions(this, new String[]{
                             Manifest.permission.INTERNET,}, 2);
                 }
             } else {
+                // ᕙ(`▿´)ᕗ ... or request location permission ᕙ(`▿´)ᕗ
                 gotPermissions = false;
                 ActivityCompat.requestPermissions(this, new String[]{
                         Manifest.permission.ACCESS_FINE_LOCATION,
@@ -87,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
         } else if (requestCode == 2 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             //doSomething
         } else {
-            checkPermission();
+            checkPermission(); //ᕙ(`▿´)ᕗ try again if you dont get access to location/internet ᕙ(`▿´)ᕗ6
         }
 
     }
