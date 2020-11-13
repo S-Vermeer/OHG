@@ -106,15 +106,65 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
         txtLat = (TextView) findViewById(R.id.gpsText);
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0,this);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
         /* ʕ•́ᴥ•̀ʔっ GPS COORDINATES END ʕ•́ᴥ•̀ʔっ */
 
     }
+
+    public char windDir(String longOrLat, double value) {
+        char windDir;
+        if (longOrLat == "lat" && value >= 0) {
+            windDir = 'N';
+        } else if (longOrLat == "lat" && value < 0) {
+            windDir = 'S';
+        } else if (longOrLat == "long" && value >= 0) {
+            windDir = 'E';
+        } else if (longOrLat == "long" && value < 0) {
+            windDir = 'W';
+        } else {
+            windDir = 'X';
+        }
+        return windDir;
+    }
+
+    public String getLongOrLatitude(double gpsValue, String longOrLat){
+        char windDir = windDir(longOrLat, gpsValue);
+        if(gpsValue < 0){
+            gpsValue = gpsValue * -1;
+        }
+
+        double gpsHours = Math.floor(gpsValue);
+        String hourStr = String.format("%.0f", gpsHours);
+        double gpsMin = Math.floor((gpsValue - gpsHours) * 60);
+        String minStr = String.format("%.0f", gpsMin);
+        double gpsSec = (gpsValue - gpsHours - (gpsMin / 60)) * 3600;
+        String secStr = String.format("%.3f", gpsSec);
+        String gps = windDir + hourStr + "° " + minStr + "' " + secStr + "\"";
+        return gps;
+    }
+
+    public double getGPSValue(Location location, String longOrLat) {
+        double longLatValue;
+        double gpsValue;
+        if(longOrLat == "lat"){
+            longLatValue = location.getLatitude();
+        } else if (longOrLat == "long"){
+            longLatValue = location.getLongitude();
+
+        } else {
+            longLatValue = 69696969;
+        }
+        gpsValue = longLatValue;
+
+        return gpsValue;
+    }
+
     @Override
     public void onLocationChanged(Location location) {
-        txtLat = (TextView) findViewById(R.id.text_test);
-        txtLat.setText("Latitude:" + location.getLatitude() + ", Longitude:" + location.getLongitude());
+        txtLat = (TextView) findViewById(R.id.gpsText);
+        txtLat.setText("Latitude:" + getLongOrLatitude(getGPSValue(location,"lat"), "lat") + ", \n" + location.getLatitude() + " \n Longitude:" + getLongOrLatitude(getGPSValue(location,"long"), "long") + "\n " + location.getLongitude());
     }
+
     @Override
     public void onProviderDisabled(String provider) {
         Log.d("Latitude", "disable");
