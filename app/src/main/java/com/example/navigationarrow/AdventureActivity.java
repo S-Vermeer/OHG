@@ -71,7 +71,7 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
                 SensorManager.getOrientation(floatRotationMatrix, floatOrientation);
 
                 //ᕙ(`▿´)ᕗ Change direction of compass based on sensor data ᕙ(`▿´)ᕗ
-                imageView.setRotation((float) (-floatOrientation[0] * 180 / 3.14159));
+                //imageView.setRotation((float) (-floatOrientation[0] * 180 / 3.14159));
             }
 
             @Override
@@ -90,7 +90,7 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
                 SensorManager.getOrientation(floatRotationMatrix, floatOrientation);
 
                 //ᕙ(`▿´)ᕗ Change direction of compass based on sensor data ᕙ(`▿´)ᕗ
-                imageView.setRotation((float) (-floatOrientation[0] * 180 / 3.14159));
+                //imageView.setRotation((float) (-floatOrientation[0] * 180 / 3.14159));
 
             }
 
@@ -174,12 +174,16 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
         /* ᕙ(`▿´)ᕗ if the location has changed, the text should be updated to the corresponding coordinates.
         Currently also features longitude and latitude for control purposes ᕙ(`▿´)ᕗ */
 
-        double distance = calculateDistanceLongLatPoints(location.getLatitude(),location.getLatitude() + 0.5, location.getLongitude(), location.getLongitude() + 0.5);
+        double distance = calculateDistanceLongLatPoints(location.getLatitude(), location.getLatitude() + 0.5, location.getLongitude(), location.getLongitude() + 0.5);
 
         txtLat = (TextView) findViewById(R.id.gpsText);
         txtLat.setText("Latitude:" + getLongOrLatitude(getGPSValue(location, "lat"), "lat") + ", \n" + location.getLatitude() + " \n Longitude:" + getLongOrLatitude(getGPSValue(location, "long"), "long") + "\n " + location.getLongitude() + "\n " + distance);
 
+        Location location2 = new Location("");
+        location2.setLatitude(51.5162d);
+        location2.setLongitude(5.0855d);
 
+        imageView.setRotation(directionNextCoordinate(location,location2));
     }
 
 
@@ -212,11 +216,22 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
         return haversine;
     }
 
+    //(•◡•)/ direction of an arrow (degrees to turn) to the next coordinate  (•◡•)/
+    public float directionNextCoordinate(Location location1, Location location2){
+        float direction = location1.bearingTo(location2);
+
+        float phoneOrientation = (float) (-floatOrientation[0] * 180 / 3.14159);
+        float turnAngle = direction - phoneOrientation;
+
+        return turnAngle;
+    }
 
 
 
 
-    /* ʕ•́ᴥ•̀ʔっ CALCULATE DISTANCE BETWEEN TWO COORDINATES END ʕ•́ᴥ•̀ʔっ */
+
+
+    /* ʕ•́ᴥ•̀ʔっ NAVIGATION TO NEXT COORDINATE END ʕ•́ᴥ•̀ʔっ */
 
 
     @Override
