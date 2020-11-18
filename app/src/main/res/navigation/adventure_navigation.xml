@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools"
+            android:id="@+id/adventure_navigation"
+            app:startDestination="@id/navigation_compass">
+
+
+    <fragment
+            android:id="@+id/navigation_compass"
+            android:name="com.example.navigationarrow.ui.navigation.NavigationFragment"
+            android:label="Navigation"
+            tools:layout="@layout/fragment_navigation"/>
+
+    <fragment
+            android:id="@+id/navigation_story"
+            android:name="com.example.navigationarrow.ui.story.StoryFragment"
+            android:label="Story"
+            tools:layout="@layout/fragment_story"/>
+
+
+</navigation>

@@ -1,6 +1,8 @@
 //ʕ•́ᴥ•̀ʔっ Header ʕ•́ᴥ•̀ʔっ
 //(•◡•)/ Sub-header (•◡•)/
 //ᕙ(`▿´)ᕗ Explanation of code ᕙ(`▿´)ᕗ
+//≧◉◡◉≦ TOFIX  ≧◉◡◉≦
+
 package com.example.navigationarrow;
 
 import android.content.Context;
@@ -15,12 +17,24 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.ui.AppBarConfiguration;
+import androidx.navigation.ui.NavigationUI;
+import com.example.navigationarrow.ui.navigation.NavigationViewModel;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class AdventureActivity extends AppCompatActivity implements LocationListener {
 
     /* ʕ•́ᴥ•̀ʔっ COMPASS VAR  ʕ•́ᴥ•̀ʔっ*/
+
+    private NavigationViewModel navModel;
 
     //(•◡•)/ Compass image (•◡•)/
     private ImageView imageView;
@@ -29,6 +43,7 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
     private SensorManager sensorManager;
     private Sensor sensorAccelerometer;
     private Sensor sensorMagneticField;
+    private Sensor sensorRotationVector;
 
     //(•◡•)/ Magnetic field variables (•◡•)/
     private float[] floatGravity = new float[3];
@@ -42,6 +57,9 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
     /* ʕ•́ᴥ•̀ʔっ GPS VAR ʕ•́ᴥ•̀ʔっ */
     protected LocationManager locationManager;
     TextView txtLat;
+    String magnet = "";
+    String accel = "";
+    TextView txtSensor;
     /* ʕ•́ᴥ•̀ʔっ GPS VAR END ʕ•́ᴥ•̀ʔっ */
 
     @Override
@@ -49,29 +67,73 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
 
         //ᕙ(`▿´)ᕗ Mandatory in onCreate ᕙ(`▿´)ᕗ
         super.onCreate(savedInstanceState);
+        navModel = (NavigationViewModel) obtainViewModel(this, NavigationViewModel.class);
         setContentView(R.layout.activity_adventure);
 
         /* ʕ•́ᴥ•̀ʔっ COMPASS DISPLAY ʕ•́ᴥ•̀ʔっ */
 
         //(•◡•)/ Assign corresponding values (•◡•)/
+
+
         imageView = findViewById(R.id.imageView);
 
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
         sensorAccelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        sensorRotationVector = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
         sensorMagneticField = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 
         //(•◡•)/ Accelerometer sensor Get Values (•◡•)/
-        SensorEventListener sensorEventListerAccelerometer = new SensorEventListener() {
+ /*       SensorEventListener sensorEventListerAccelerometer = new SensorEventListener() {
             @Override
             public void onSensorChanged(SensorEvent event) {
-                floatGravity = event.values;
+                floatOrientation = event.values;
 
                 SensorManager.getRotationMatrix(floatRotationMatrix, null, floatGravity, floatGeoMagnetic);
                 SensorManager.getOrientation(floatRotationMatrix, floatOrientation);
 
                 //ᕙ(`▿´)ᕗ Change direction of compass based on sensor data ᕙ(`▿´)ᕗ
+                navModel.setRotationAngle((float) (-floatOrientation[0] * 180 / 3.14159));
                 //imageView.setRotation((float) (-floatOrientation[0] * 180 / 3.14159));
+
+                accel = floatOrientation[0]+  " " + floatOrientation[1] + " " + floatOrientation[2];
+                txtSensor = (TextView) findViewById(R.id.gpsText2);
+                navModel.setAccelSensorText(floatOrientation[0]);
+                navModel.setReadingsText();
+                //txtSensor.setText("Magnet: "+ magnet + "\n Accel: " + accel + "\n Rotation: " + (-floatOrientation[0] * 180 / 3.14159));
+
+            }
+
+            @Override
+            public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+            }
+        };*/
+
+        SensorEventListener sensorEventListenerRotationVector = new SensorEventListener() {
+            @Override
+            public void onSensorChanged(SensorEvent event) {
+                if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR)
+                {
+                    // Convert the rotation-vector to a 4x4 matrix.
+                    SensorManager.getRotationMatrixFromVector(floatRotationMatrix,
+                            event.values);
+                    SensorManager
+                            .remapCoordinateSystem(floatRotationMatrix,
+                                    SensorManager.AXIS_X, SensorManager.AXIS_Z,
+                                    floatRotationMatrix);
+                    SensorManager.getOrientation(floatRotationMatrix, floatOrientation);
+
+                    // Optionally convert the result from radians to degrees
+                    floatOrientation[0] = (float) Math.toDegrees(floatOrientation[0]);
+                    floatOrientation[1] = (float) Math.toDegrees(floatOrientation[1]);
+                    floatOrientation[2] = (float) Math.toDegrees(floatOrientation[2]);
+
+                    navModel.setOrientation(floatOrientation);
+                    txtSensor = (TextView) findViewById(R.id.gpsText2);
+
+
+                }
             }
 
             @Override
@@ -81,17 +143,24 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
         };
 
         //(•◡•)/ MagneticField Sensor Get Values (•◡•)/
-        SensorEventListener sensorEventListenerMagneticField = new SensorEventListener() {
+   /*     SensorEventListener sensorEventListenerMagneticField = new SensorEventListener() {
             @Override
             public void onSensorChanged(SensorEvent event) {
-                floatGeoMagnetic = event.values;
+                floatRotationMatrix = event.values;
 
                 SensorManager.getRotationMatrix(floatRotationMatrix, null, floatGravity, floatGeoMagnetic);
                 SensorManager.getOrientation(floatRotationMatrix, floatOrientation);
 
                 //ᕙ(`▿´)ᕗ Change direction of compass based on sensor data ᕙ(`▿´)ᕗ
+                navModel.setRotationAngle((float) (-floatOrientation[0] * 180 / 3.14159));
                 //imageView.setRotation((float) (-floatOrientation[0] * 180 / 3.14159));
 
+                magnet = floatGeoMagnetic[0] + " " + floatGeoMagnetic[1] + " " +  floatGeoMagnetic[2] ;
+                txtSensor = (TextView) findViewById(R.id.gpsText2);
+                //txtSensor.setText("Magnet: "+ magnet + "\n Accel: " + accel + "\n Rotation: " + (-floatOrientation[0] * 180 / 3.14159));
+
+                navModel.setMagnetSensorText(floatGeoMagnetic[0]);
+                navModel.setReadingsText();
             }
 
             @Override
@@ -102,7 +171,8 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
 
         sensorManager.registerListener(sensorEventListerAccelerometer, sensorAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
         sensorManager.registerListener(sensorEventListenerMagneticField, sensorMagneticField, SensorManager.SENSOR_DELAY_NORMAL);
-
+*/
+        sensorManager.registerListener(sensorEventListenerRotationVector, sensorRotationVector, SensorManager.SENSOR_DELAY_NORMAL);
         /* ʕ•́ᴥ•̀ʔっ COMPASS DISPLAY END ʕ•́ᴥ•̀ʔっ */
 
         /* ʕ•́ᴥ•̀ʔっ GPS COORDINATES ʕ•́ᴥ•̀ʔっ */
@@ -112,6 +182,15 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
         /* ʕ•́ᴥ•̀ʔっ GPS COORDINATES END ʕ•́ᴥ•̀ʔっ */
 
+        BottomNavigationView navView = findViewById(R.id.nav_view_adventure);
+        // Passing each menu ID as a set of Ids because each
+        // menu should be considered as top level destinations.
+        AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
+                R.id.navigation_compass, R.id.navigation_story)
+                .build();
+        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_adventure);
+        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
+        NavigationUI.setupWithNavController(navView, navController);
     }
 
     // ʕ•́ᴥ•̀ʔっ Making GPS coordinates visible in DMS notation ʕ•́ᴥ•̀ʔっ
@@ -177,13 +256,13 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
         double distance = calculateDistanceLongLatPoints(location.getLatitude(), location.getLatitude() + 0.5, location.getLongitude(), location.getLongitude() + 0.5);
 
         txtLat = (TextView) findViewById(R.id.gpsText);
-        txtLat.setText("Latitude:" + getLongOrLatitude(getGPSValue(location, "lat"), "lat") + ", \n" + location.getLatitude() + " \n Longitude:" + getLongOrLatitude(getGPSValue(location, "long"), "long") + "\n " + location.getLongitude() + "\n " + distance);
+        //txtLat.setText("Latitude:" + getLongOrLatitude(getGPSValue(location, "lat"), "lat") + ", \n" + location.getLatitude() + " \n Longitude:" + getLongOrLatitude(getGPSValue(location, "long"), "long") + "\n " + location.getLongitude() + "\n " + distance);
 
         Location location2 = new Location("");
         location2.setLatitude(51.5162d);
         location2.setLongitude(5.0855d);
 
-        imageView.setRotation(directionNextCoordinate(location,location2));
+        //imageView.setRotation(directionNextCoordinate(location,location2));
     }
 
 
@@ -224,6 +303,9 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
         float turnAngle = direction - phoneOrientation;
 
         return turnAngle;
+
+        //≧◉◡◉≦ TOFIX Enhance turnangle so phone rotation + bearing vs true north next location = direction arrow  ≧◉◡◉≦
+
     }
 
 
@@ -233,6 +315,10 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
 
     /* ʕ•́ᴥ•̀ʔっ NAVIGATION TO NEXT COORDINATE END ʕ•́ᴥ•̀ʔっ */
 
+    protected final <T extends ViewModel> ViewModel obtainViewModel(@NonNull AppCompatActivity activity, @NonNull Class<T> modelClass) {
+        ViewModelProvider.AndroidViewModelFactory factory = ViewModelProvider.AndroidViewModelFactory.getInstance(activity.getApplication());
+        return new ViewModelProvider(activity, factory).get(modelClass);
+    }
 
     @Override
     public void onProviderDisabled(String provider) {
@@ -250,6 +336,6 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
     }
 
     public void ResetButton(View view) {
-        imageView.setRotation(180);
+        //imageView.setRotation(180);
     }
 }

@@ -30,11 +30,4 @@ public class HomeFragment extends Fragment {
         });
         return root;
     }
-
-    /*
-    public void test(android.view.View view){
-        notify();
-        baksteen
-    }
-    */
 }
