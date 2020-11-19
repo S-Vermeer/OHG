@@ -2,15 +2,12 @@
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
     <data>
-        <import type="com.example.navigationarrow.ui.navigation.NavigationViewModel"/>
-        <variable
-                name="viewModel"
-                type="NavigationViewModel"
-        />
+
     </data>
     <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="@color/colorBackgroundLightGreen"
     >
 
         <ImageView
@@ -34,9 +31,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" android:id="@+id/gpsText"
                 app:layout_constraintTop_toBottomOf="@+id/imageView" app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" android:layout_marginTop="24dp"/>
+                app:layout_constraintEnd_toEndOf="parent" android:layout_marginTop="24dp"
+                android:textColor="@color/colorTextLightYellow" android:textSize="18sp"/>
         <TextView
-                android:text="@={viewModel.sensorText}"
+                android:text="TopText"
                 android:layout_width="wrap_content"
                 android:layout_height="19dp" android:id="@+id/gpsText2"
                 app:layout_constraintStart_toStartOf="parent"

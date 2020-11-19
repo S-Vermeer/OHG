@@ -35,38 +35,40 @@ import androidx.navigation.ui.NavigationUI;
 import com.example.navigationarrow.ui.navigation.NavigationViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import java.util.concurrent.TimeUnit;
+
+import static java.lang.Math.floor;
+
 public class AdventureActivity extends AppCompatActivity implements LocationListener {
 
     /* ʕ•́ᴥ•̀ʔっ COMPASS VAR  ʕ•́ᴥ•̀ʔっ*/
 
     private NavigationViewModel navModel;
 
-    //(•◡•)/ Compass image (•◡•)/
-    private ImageView imageView;
-
     //(•◡•)/ Sensor setup (•◡•)/
+
     private SensorManager sensorManager;
-    private Sensor sensorAccelerometer;
-    private Sensor sensorMagneticField;
     private Sensor sensorRotationVector;
 
-    //(•◡•)/ Magnetic field variables (•◡•)/
-    private float[] floatGravity = new float[3];
-    private float[] floatGeoMagnetic = new float[3];
-
     //(•◡•)/ Accelerometer (orientation) variables (•◡•)/
+
     private float[] floatOrientation = new float[3];
     private float[] floatRotationMatrix = new float[9];
+
     /* ʕ•́ᴥ•̀ʔっ COMPASS VAR END ʕ•́ᴥ•̀ʔっ */
 
     /* ʕ•́ᴥ•̀ʔっ GPS VAR ʕ•́ᴥ•̀ʔっ */
+
     protected LocationManager locationManager;
+
+    /* ʕ•́ᴥ•̀ʔっ GPS VAR END ʕ•́ᴥ•̀ʔっ */
+
+    //(•◡•)/ View variables setup (•◡•)/
     TextView txtLat;
     TextView txtCheck;
-    String magnet = "";
-    String accel = "";
-    TextView txtSensor;
-    /* ʕ•́ᴥ•̀ʔっ GPS VAR END ʕ•́ᴥ•̀ʔっ */
+    //TextView txtSensor;
+    TextView timeText;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,40 +83,11 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
         //(•◡•)/ Assign corresponding values (•◡•)/
 
 
-        imageView = findViewById(R.id.imageView);
-
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
-        sensorAccelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         sensorRotationVector = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
-        sensorMagneticField = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 
-        //(•◡•)/ Accelerometer sensor Get Values (•◡•)/
- /*       SensorEventListener sensorEventListerAccelerometer = new SensorEventListener() {
-            @Override
-            public void onSensorChanged(SensorEvent event) {
-                floatOrientation = event.values;
-
-                SensorManager.getRotationMatrix(floatRotationMatrix, null, floatGravity, floatGeoMagnetic);
-                SensorManager.getOrientation(floatRotationMatrix, floatOrientation);
-
-                //ᕙ(`▿´)ᕗ Change direction of compass based on sensor data ᕙ(`▿´)ᕗ
-                navModel.setRotationAngle((float) (-floatOrientation[0] * 180 / 3.14159));
-                //imageView.setRotation((float) (-floatOrientation[0] * 180 / 3.14159));
-
-                accel = floatOrientation[0]+  " " + floatOrientation[1] + " " + floatOrientation[2];
-                txtSensor = (TextView) findViewById(R.id.gpsText2);
-                navModel.setAccelSensorText(floatOrientation[0]);
-                navModel.setReadingsText();
-                //txtSensor.setText("Magnet: "+ magnet + "\n Accel: " + accel + "\n Rotation: " + (-floatOrientation[0] * 180 / 3.14159));
-
-            }
-
-            @Override
-            public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
-            }
-        };*/
+        //txtSensor = (TextView) findViewById(R.id.gpsText2);
 
         SensorEventListener sensorEventListenerRotationVector = new SensorEventListener() {
             @Override
@@ -136,8 +109,6 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
 
                     navModel.setOrientation(floatOrientation);
                     navModel.setSensorText(navModel.getOrientationValue().getValue());
-                    txtSensor = (TextView) findViewById(R.id.gpsText2);
-
 
                 }
             }
@@ -148,42 +119,13 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
             }
         };
 
-        //(•◡•)/ MagneticField Sensor Get Values (•◡•)/
-   /*     SensorEventListener sensorEventListenerMagneticField = new SensorEventListener() {
-            @Override
-            public void onSensorChanged(SensorEvent event) {
-                floatRotationMatrix = event.values;
-
-                SensorManager.getRotationMatrix(floatRotationMatrix, null, floatGravity, floatGeoMagnetic);
-                SensorManager.getOrientation(floatRotationMatrix, floatOrientation);
-
-                //ᕙ(`▿´)ᕗ Change direction of compass based on sensor data ᕙ(`▿´)ᕗ
-                navModel.setRotationAngle((float) (-floatOrientation[0] * 180 / 3.14159));
-                //imageView.setRotation((float) (-floatOrientation[0] * 180 / 3.14159));
-
-                magnet = floatGeoMagnetic[0] + " " + floatGeoMagnetic[1] + " " +  floatGeoMagnetic[2] ;
-                txtSensor = (TextView) findViewById(R.id.gpsText2);
-                //txtSensor.setText("Magnet: "+ magnet + "\n Accel: " + accel + "\n Rotation: " + (-floatOrientation[0] * 180 / 3.14159));
-
-                navModel.setMagnetSensorText(floatGeoMagnetic[0]);
-                navModel.setReadingsText();
-            }
-
-            @Override
-            public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
-            }
-        };
-
-        sensorManager.registerListener(sensorEventListerAccelerometer, sensorAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-        sensorManager.registerListener(sensorEventListenerMagneticField, sensorMagneticField, SensorManager.SENSOR_DELAY_NORMAL);
-*/
         sensorManager.registerListener(sensorEventListenerRotationVector, sensorRotationVector, SensorManager.SENSOR_DELAY_NORMAL);
         /* ʕ•́ᴥ•̀ʔっ COMPASS DISPLAY END ʕ•́ᴥ•̀ʔっ */
 
         /* ʕ•́ᴥ•̀ʔっ GPS COORDINATES ʕ•́ᴥ•̀ʔっ */
         txtLat = (TextView) findViewById(R.id.gpsText);
         txtCheck = (TextView) findViewById(R.id.textView2);
+        timeText = (TextView) findViewById(R.id.timeWalked);
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
@@ -227,9 +169,9 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
 
         /* ᕙ(`▿´)ᕗ DMS notation is both for longitude and latitude the full value (so no decimals), then get the
         remaining value * 60 and the full value from that and repeat once more. Its the most commonly used formatting of GPS coordinates ᕙ(`▿´)ᕗ */
-        double gpsHours = Math.floor(gpsValue);
+        double gpsHours = floor(gpsValue);
         String hourStr = String.format("%.0f", gpsHours);
-        double gpsMin = Math.floor((gpsValue - gpsHours) * 60);
+        double gpsMin = floor((gpsValue - gpsHours) * 60);
         String minStr = String.format("%.0f", gpsMin);
         double gpsSec = (gpsValue - gpsHours - (gpsMin / 60)) * 3600;
         String secStr = String.format("%.3f", gpsSec);
@@ -279,7 +221,9 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
             txtCheck.setText("aaaaah");
         }
 
-        //imageView.setRotation(directionNextCoordinate(location,location2));
+        long timeSpent = navModel.getSpentTime();
+
+        timeText.setText(TimeString(timeSpent));
     }
 
 
@@ -323,6 +267,23 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
 
         //≧◉◡◉≦ TOFIX Enhance turnangle so phone rotation + bearing vs true north next location = direction arrow  ≧◉◡◉≦
 
+    }
+
+    public String TimeString(long timeSpent){
+        long totalSeconds = TimeUnit.MILLISECONDS.toSeconds(timeSpent);
+        double minutes = floor(TimeUnit.MILLISECONDS.toMinutes(timeSpent));
+
+        double currentSeconds = totalSeconds;
+        if(totalSeconds >= 60){
+            currentSeconds = totalSeconds - 60 * minutes;
+        }
+        String addedZero = "";
+        if(currentSeconds < 10){
+            addedZero = "0";
+        }
+
+        String time = String.format("%.0f", minutes) + ":" + addedZero + String.format("%.0f", currentSeconds);
+        return time;
     }
 
 

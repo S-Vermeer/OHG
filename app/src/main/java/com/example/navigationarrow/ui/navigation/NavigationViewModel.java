@@ -2,15 +2,12 @@ package com.example.navigationarrow.ui.navigation;
 
 
 import android.location.Location;
-import android.view.View;
-import android.widget.TextView;
-import androidx.databinding.*;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import java.util.Observable;
+import java.util.*;
 
 public class NavigationViewModel extends ViewModel {
     private MutableLiveData<float[]> orientation;
@@ -18,7 +15,15 @@ public class NavigationViewModel extends ViewModel {
     private MediatorLiveData<String> readingsText;
     private Location location;
 
+    private Location loc1 = new Location("");
+    private Location loc2 = new Location("");
+    private Location loc3 = new Location("");
+
+    private Date time;
+
     public String sensorText;
+
+    ArrayList<Location> locations = new ArrayList<>();
 
 
     public NavigationViewModel() {
@@ -29,13 +34,25 @@ public class NavigationViewModel extends ViewModel {
         Float f = (float) 0;
         rotationAngle.setValue(f);
         setReadingsText();
+
+        time = GregorianCalendar.getInstance().getTime();
+
+
+        loc1.setLongitude(5.0855d);
+        loc1.setLatitude(51.4162d);
+        loc2.setLongitude(5.1855d);
+        loc2.setLatitude(51.5162d);
+        loc3.setLongitude(5.2855d);
+        loc3.setLongitude(51.6162d);
+        addLocationToCollection(loc1);
+        addLocationToCollection(loc2);
+        addLocationToCollection(loc3);
     }
 
     public String getSensorText() {
         return sensorText;
     }
 
-    @InverseBindingAdapter(attribute = "android:text")
     public String setSensorText(String text) {;
         sensorText = text;
         return sensorText;
@@ -79,4 +96,16 @@ public class NavigationViewModel extends ViewModel {
         this.location = location;
         //update observer
     }
+
+    public void addLocationToCollection(Location l){
+        locations.add(l);
+    }
+
+    public long getSpentTime(){
+        Date now = GregorianCalendar.getInstance().getTime();
+        long spentTime = now.getTime() - time.getTime();
+        return spentTime;
+    }
+
+
 }
