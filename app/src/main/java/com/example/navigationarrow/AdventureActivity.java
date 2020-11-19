@@ -7,6 +7,7 @@ package com.example.navigationarrow;
 
 import android.app.Fragment;
 import android.app.FragmentTransaction;
+import android.app.Notification;
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -61,6 +62,7 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
     /* ʕ•́ᴥ•̀ʔっ GPS VAR ʕ•́ᴥ•̀ʔっ */
     protected LocationManager locationManager;
     TextView txtLat;
+    TextView txtCheck;
     String magnet = "";
     String accel = "";
     TextView txtSensor;
@@ -72,7 +74,7 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
         //ᕙ(`▿´)ᕗ Mandatory in onCreate ᕙ(`▿´)ᕗ
         super.onCreate(savedInstanceState);
         navModel = (NavigationViewModel) obtainViewModel(this, NavigationViewModel.class);
-        DataBindingUtil.setContentView(this,R.layout.activity_adventure);
+        DataBindingUtil.setContentView(this, R.layout.activity_adventure);
 
         /* ʕ•́ᴥ•̀ʔっ COMPASS DISPLAY ʕ•́ᴥ•̀ʔっ */
 
@@ -117,8 +119,7 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
         SensorEventListener sensorEventListenerRotationVector = new SensorEventListener() {
             @Override
             public void onSensorChanged(SensorEvent event) {
-                if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR)
-                {
+                if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
                     // Convert the rotation-vector to a 4x4 matrix.
                     SensorManager.getRotationMatrixFromVector(floatRotationMatrix,
                             event.values);
@@ -136,9 +137,6 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
                     navModel.setOrientation(floatOrientation);
                     navModel.setSensorText(navModel.getOrientationValue().getValue());
                     txtSensor = (TextView) findViewById(R.id.gpsText2);
-
-                    
-
 
 
                 }
@@ -185,6 +183,7 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
 
         /* ʕ•́ᴥ•̀ʔっ GPS COORDINATES ʕ•́ᴥ•̀ʔっ */
         txtLat = (TextView) findViewById(R.id.gpsText);
+        txtCheck = (TextView) findViewById(R.id.textView2);
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
@@ -270,6 +269,16 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
         location2.setLatitude(51.5162d);
         location2.setLongitude(5.0855d);
 
+        double dist = calculateDistanceLongLatPoints(location.getLatitude(), location2.getLatitude(), location.getLongitude(), location2.getLongitude());
+        txtCheck.setText(location.toString());
+        if (dist < 100) {
+            txtCheck.setText("smol " + dist);
+        } else if (dist > 100) {
+            txtCheck.setText("big" + dist);
+        } else {
+            txtCheck.setText("aaaaah");
+        }
+
         //imageView.setRotation(directionNextCoordinate(location,location2));
     }
 
@@ -304,7 +313,7 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
     }
 
     //(•◡•)/ direction of an arrow (degrees to turn) to the next coordinate  (•◡•)/
-    public float directionNextCoordinate(Location location1, Location location2){
+    public float directionNextCoordinate(Location location1, Location location2) {
         float direction = location1.bearingTo(location2);
 
         float phoneOrientation = (float) (-floatOrientation[0] * 180 / 3.14159);
@@ -343,7 +352,5 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
         Log.d("Latitude", "status");
     }
 
-    public void ResetButton(View view) {
-        //imageView.setRotation(180);
-    }
+
 }

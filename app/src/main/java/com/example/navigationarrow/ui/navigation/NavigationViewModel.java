@@ -1,6 +1,7 @@
 package com.example.navigationarrow.ui.navigation;
 
 
+import android.location.Location;
 import android.view.View;
 import android.widget.TextView;
 import androidx.databinding.*;
@@ -9,10 +10,13 @@ import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import java.util.Observable;
+
 public class NavigationViewModel extends ViewModel {
     private MutableLiveData<float[]> orientation;
     private MutableLiveData<Float> rotationAngle;
     private MediatorLiveData<String> readingsText;
+    private Location location;
 
     public String sensorText;
 
@@ -64,5 +68,15 @@ public class NavigationViewModel extends ViewModel {
 
     public LiveData<String> getOrientationValue(){
         return readingsText;
+    }
+
+    public Location getLocation(){
+        return location;
+    }
+
+
+    public void setLocation(Location location) {
+        this.location = location;
+        //update observer
     }
 }

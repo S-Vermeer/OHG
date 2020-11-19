@@ -19,6 +19,7 @@ public class StoryFragment extends Fragment {
         storyViewmodel = ViewModelProviders.of(getActivity()).get(StoryViewModel.class);
         View root = inflater.inflate(R.layout.fragment_story, container, false);
 
+
         return root;
 
     }
