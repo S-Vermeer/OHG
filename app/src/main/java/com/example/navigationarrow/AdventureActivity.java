@@ -5,6 +5,8 @@
 
 package com.example.navigationarrow;
 
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -20,6 +22,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
@@ -68,7 +72,7 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
         //ᕙ(`▿´)ᕗ Mandatory in onCreate ᕙ(`▿´)ᕗ
         super.onCreate(savedInstanceState);
         navModel = (NavigationViewModel) obtainViewModel(this, NavigationViewModel.class);
-        setContentView(R.layout.activity_adventure);
+        DataBindingUtil.setContentView(this,R.layout.activity_adventure);
 
         /* ʕ•́ᴥ•̀ʔっ COMPASS DISPLAY ʕ•́ᴥ•̀ʔっ */
 
@@ -130,7 +134,11 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
                     floatOrientation[2] = (float) Math.toDegrees(floatOrientation[2]);
 
                     navModel.setOrientation(floatOrientation);
+                    navModel.setSensorText(navModel.getOrientationValue().getValue());
                     txtSensor = (TextView) findViewById(R.id.gpsText2);
+
+                    
+
 
 
                 }
