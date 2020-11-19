@@ -38,6 +38,8 @@ public class NavigationFragment extends Fragment implements LocationListener {
 
 
 
+
+
         sensorTextView = root.findViewById(R.id.gpsText2);
         arrowImageView = root.findViewById(R.id.imageView);
         gpsTextView = root.findViewById(R.id.gpsText);
@@ -86,12 +88,16 @@ public class NavigationFragment extends Fragment implements LocationListener {
     @Override
     public void onLocationChanged(Location location) {
 
-        gpsTextView.setText(String.valueOf(Math.random()));
+        gpsTextView.setText(location.toString());
         /* ᕙ(`▿´)ᕗ if the location has changed, the text should be updated to the corresponding coordinates.
         Currently also features longitude and latitude for control purposes ᕙ(`▿´)ᕗ */
         Location location2 = new Location("");
         location2.setLatitude(51.5162d);
         location2.setLongitude(5.0855d);
+
+
+        float randomRot = (float) (Math.random() * 100);
+        arrowImageView.setRotation(randomRot);
 
         //imageView.setRotation(directionNextCoordinate(location,location2));
     }
