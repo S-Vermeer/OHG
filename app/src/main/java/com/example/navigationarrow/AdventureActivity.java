@@ -93,7 +93,7 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
             @Override
             public void onSensorChanged(SensorEvent event) {
                 if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
-                    // Convert the rotation-vector to a 4x4 matrix.
+                    // Convert the rotation-vector to a 4x4 matrix..
                     SensorManager.getRotationMatrixFromVector(floatRotationMatrix,
                             event.values);
                     SensorManager

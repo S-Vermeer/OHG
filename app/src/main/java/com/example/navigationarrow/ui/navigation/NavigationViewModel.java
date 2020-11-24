@@ -107,5 +107,13 @@ public class NavigationViewModel extends ViewModel {
         return spentTime;
     }
 
+    public long getActiveWalkingTime(){
+        long active = time.getTime();
+        return active;
+    }
 
+    public long getRandomWalkingTimeGoal() {
+        long goal = time.getTime();
+        return goal;
+    }
 }
