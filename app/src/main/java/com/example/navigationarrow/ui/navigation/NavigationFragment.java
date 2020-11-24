@@ -28,7 +28,6 @@ public class NavigationFragment extends Fragment implements LocationListener {
     private NavigationViewModel navigationViewModel;
 
     //TextView sensorTextView;
-    ImageView arrowImageView;
     LocationManager locationManager;
     TextView gpsTextView;
     Button reset;
@@ -47,9 +46,7 @@ public class NavigationFragment extends Fragment implements LocationListener {
 
 
         //sensorTextView = root.findViewById(R.id.gpsText2);
-        arrowImageView = root.findViewById(R.id.imageView);
         gpsTextView = root.findViewById(R.id.gpsText);
-        arrowImageView.setRotation(80);
         reset = root.findViewById(R.id.button2);
         locationIndex = root.findViewById(R.id.gpsText2);
 
@@ -59,7 +56,6 @@ public class NavigationFragment extends Fragment implements LocationListener {
                 resetButton(v);
             }
         });
-        Log.d("blahblah", String.valueOf(arrowImageView.getRotation()));
 
         final Observer<String> dataObserver = new Observer<String>() {
             @Override
@@ -73,18 +69,26 @@ public class NavigationFragment extends Fragment implements LocationListener {
         navigationViewModel = ViewModelProviders.of(this).get(NavigationViewModel.class);
         ViewModelProviders.of(getActivity()).get(NavigationViewModel.class).getOrientationValue().observe(this, dataObserver);
 
-        Log.d("blahblah2", String.valueOf(arrowImageView.getRotation()));
 
         currentLocationNumber = 1;
         lastLocationNumber = navigationViewModel.locations.size();
         currentTarget = navigationViewModel.locations.get(currentLocationNumber - 1);
 
 
+        /*
+        * Random visualisation
+        *
+        */
+        navigationViewModel.setRandomDots();
+        navigationViewModel.getRandomDots();
+
+
+
         return root;
     }
 
     public void resetButton(View view){
-        arrowImageView.setRotation(100);
+
     }
 
     @Override
@@ -103,7 +107,6 @@ public class NavigationFragment extends Fragment implements LocationListener {
         navigationViewModel.getRotationAngle().observe(getViewLifecycleOwner(), new Observer<Float>() {
             @Override
             public void onChanged(Float aFloat) {
-                arrowImageView.setRotation(aFloat);
             }
         });
     }
@@ -127,7 +130,6 @@ public class NavigationFragment extends Fragment implements LocationListener {
         location2.setLongitude(5.0855d);
 
         float randomRot = (float) (Math.random() * 100);
-        arrowImageView.setRotation(randomRot);
 
         if(distance < 100){
             //sensorTextView.setText("/");

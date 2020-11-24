@@ -8,6 +8,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class NavigationViewModel extends ViewModel {
     private MutableLiveData<float[]> orientation;
@@ -20,6 +21,11 @@ public class NavigationViewModel extends ViewModel {
     private Location loc3 = new Location("");
 
     private Date time;
+    private long randomWalkingGoal;
+    private long activeWalkingTime;
+
+
+    private int[][] dotsArray;
 
     public String sensorText;
 
@@ -108,12 +114,38 @@ public class NavigationViewModel extends ViewModel {
     }
 
     public long getActiveWalkingTime(){
+        return activeWalkingTime;
+    }
+
+    public long setActiveWalkingTime(){
         long active = time.getTime();
+        activeWalkingTime = active;
         return active;
     }
 
+    public void setRandomWalkingTimeGoal() {
+        Random r = new Random();
+        int randomNum = 360000 + r.nextInt((600000 - 360000) + 1);
+        long seconds = TimeUnit.SECONDS.toSeconds(randomNum);
+        randomWalkingGoal = seconds;
+    }
+
     public long getRandomWalkingTimeGoal() {
-        long goal = time.getTime();
-        return goal;
+        return randomWalkingGoal;
+    }
+
+    public void setRandomDots(){
+        int[][] array = {};
+        Random r = new Random();
+        int amount = r.nextInt(16);
+        for(int i = 0; i < amount; i++){
+            array[i][0] = i;
+            array[i][1] = i;
+        }
+        dotsArray = array;
+    }
+
+    public int[][] getRandomDots(){
+        return dotsArray;
     }
 }
