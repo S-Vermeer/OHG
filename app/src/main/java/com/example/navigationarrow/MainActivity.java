@@ -58,12 +58,15 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this, AdventureActivity.class);
             startActivity(intent);
         } else {
+            //≧◉◡◉≦ TOFIX Thrown exception (Exits app)  ≧◉◡◉≦
             checkPermission();
+            toAdventureActivity(view);
         }
 
     }
 
-    public void checkPermission() {
+
+        public void checkPermission() {
         //ᕙ(`▿´)ᕗ Check whether the phone has permissions to access location ... ᕙ(`▿´)ᕗ
         if (Build.VERSION.SDK_INT >= 23) {
             if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && checkSelfPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.INTERNET) == PackageManager.PERMISSION_GRANTED) {

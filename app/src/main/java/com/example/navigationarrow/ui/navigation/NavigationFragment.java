@@ -35,6 +35,7 @@ public class NavigationFragment extends Fragment implements LocationListener {
     int currentLocationNumber;
     int lastLocationNumber;
     Location currentTarget;
+    TextView locationIndex;
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -50,6 +51,7 @@ public class NavigationFragment extends Fragment implements LocationListener {
         gpsTextView = root.findViewById(R.id.gpsText);
         arrowImageView.setRotation(80);
         reset = root.findViewById(R.id.button2);
+        locationIndex = root.findViewById(R.id.gpsText2);
 
         reset.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,6 +78,7 @@ public class NavigationFragment extends Fragment implements LocationListener {
         currentLocationNumber = 1;
         lastLocationNumber = navigationViewModel.locations.size();
         currentTarget = navigationViewModel.locations.get(currentLocationNumber - 1);
+
 
         return root;
     }
@@ -129,6 +132,8 @@ public class NavigationFragment extends Fragment implements LocationListener {
         if(distance < 100){
             //sensorTextView.setText("/");
         }
+
+        locationIndex.setText(currentLocationNumber + "/" + navigationViewModel.locations.size());
 
         //imageView.setRotation(directionNextCoordinate(location,location2));
     }

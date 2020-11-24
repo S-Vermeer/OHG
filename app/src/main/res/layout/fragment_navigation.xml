@@ -36,11 +36,12 @@
         <TextView
                 android:text="TopText"
                 android:layout_width="wrap_content"
-                android:layout_height="19dp" android:id="@+id/gpsText2"
+                android:layout_height="26dp" android:id="@+id/gpsText2"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" app:layout_constraintHorizontal_bias="0.501"
-                android:layout_marginTop="100dp"/>
+                android:layout_marginTop="100dp" android:textSize="24sp"
+                android:textColor="@color/colorTextLightYellow"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
