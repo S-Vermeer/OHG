@@ -107,5 +107,14 @@ public class NavigationViewModel extends ViewModel {
         return spentTime;
     }
 
+    public void setDirection(){
+
+    }
+
+    public int getDirection(){
+        int dir = 0;
+        return dir;
+    }
+
 
 }
