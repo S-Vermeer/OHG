@@ -20,11 +20,12 @@ public class NavigationViewModel extends ViewModel {
     private Location loc3 = new Location("");
 
     private Date time;
-    public double previousDistance = 0;
+    private double previousDistance = 0;
 
     public String sensorText;
 
     ArrayList<Location> locations = new ArrayList<>();
+    private int currentLocationNumber;
 
 
     public NavigationViewModel() {
@@ -38,16 +39,14 @@ public class NavigationViewModel extends ViewModel {
 
         time = GregorianCalendar.getInstance().getTime();
 
+        setLocationInfo(5.0855d,51.4162d,loc1);
+        setLocationInfo(5.2855d,51.5162d,loc2);
+        setLocationInfo(5.0855d,51.6162d,loc3);
 
-        loc1.setLongitude(5.0855d);
-        loc1.setLatitude(51.4162d);
-        loc2.setLongitude(5.1855d);
-        loc2.setLatitude(51.5162d);
-        loc3.setLongitude(5.2855d);
-        loc3.setLongitude(51.6162d);
         addLocationToCollection(loc1);
         addLocationToCollection(loc2);
         addLocationToCollection(loc3);
+        currentLocationNumber = 1;
     }
 
     public String getSensorText() {
@@ -66,6 +65,20 @@ public class NavigationViewModel extends ViewModel {
         readingsText.setValue(" Yaw: " + currentOrientation[0] + "\n Pitch: "
                 + currentOrientation[1] + "\n Roll (not used): "
                 + currentOrientation[2]);
+    }
+
+    public void setLocationInfo(double lon, double lat, Location loc){
+        loc.setLongitude(lon);
+        loc.setLatitude(lat);
+    }
+
+    public void updateCurrentLocationNumber(){
+        currentLocationNumber++;
+
+    }
+
+    public int getCurrentLocationNumber(){
+        return currentLocationNumber;
     }
 
 
@@ -108,13 +121,12 @@ public class NavigationViewModel extends ViewModel {
         return spentTime;
     }
 
-    public void setDirection(){
-
+    public void setPreviousDistance(double currentDistance){
+        previousDistance = currentDistance;
     }
 
-    public int getDirection(){
-        int dir = 0;
-        return dir;
+    public double getPreviousDistance(){
+        return previousDistance;
     }
 
 

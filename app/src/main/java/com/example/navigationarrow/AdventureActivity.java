@@ -226,10 +226,11 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
         }
 
 
-        if(dist < 50 && navModel.previousDistance >= 50){
+        if(dist < 50 && navModel.getPreviousDistance() >= 50){
             sb.show();
+            navModel.updateCurrentLocationNumber();
         }
-        navModel.previousDistance = dist;
+        navModel.setPreviousDistance(dist);
 
         long timeSpent = navModel.getSpentTime();
 

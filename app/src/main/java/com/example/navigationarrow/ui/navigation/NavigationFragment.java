@@ -21,6 +21,7 @@ import androidx.lifecycle.*;
 import com.example.navigationarrow.R;
 
 import java.lang.reflect.Array;
+import java.sql.Time;
 import java.util.List;
 
 import static androidx.core.content.ContextCompat.getSystemService;
@@ -77,7 +78,7 @@ public class NavigationFragment extends Fragment implements LocationListener {
         ViewModelProviders.of(getActivity()).get(NavigationViewModel.class).getOrientationValue().observe(this, dataObserver);
 
 
-        currentLocationNumber = 1;
+        currentLocationNumber = navigationViewModel.getCurrentLocationNumber();
         lastLocationNumber = navigationViewModel.locations.size();
         currentTarget = navigationViewModel.locations.get(currentLocationNumber - 1);
 
@@ -85,6 +86,8 @@ public class NavigationFragment extends Fragment implements LocationListener {
     }
 
     public void resetButton(View view) {
+        currentLocationNumber = navigationViewModel.getCurrentLocationNumber();
+        locationIndex.setText("aaaa");
 
     }
 
@@ -126,7 +129,10 @@ public class NavigationFragment extends Fragment implements LocationListener {
         location2.setLatitude(51.5162d);
         location2.setLongitude(5.0855d);
 
+        currentLocationNumber = navigationViewModel.getCurrentLocationNumber();
+        currentTarget = navigationViewModel.locations.get(currentLocationNumber - 1);
         locationIndex.setText(currentLocationNumber + "/" + navigationViewModel.locations.size());
+
 
         NText.setTextSize(TypedValue.COMPLEX_UNIT_SP,20);
         EText.setTextSize(TypedValue.COMPLEX_UNIT_SP,20);
@@ -136,7 +142,10 @@ public class NavigationFragment extends Fragment implements LocationListener {
             x.setTextSize(TypedValue.COMPLEX_UNIT_SP, 60);
         TextView y = selectTextView(location2.getLongitude() - location.getLongitude(), "long");
         y.setTextSize(TypedValue.COMPLEX_UNIT_SP, 60);
-            //         selectTextView(location2.getLatitude() - location.getLatitude(), "lat").setTextSize(TypedValue.COMPLEX_UNIT_SP,60);
+
+
+
+        //         selectTextView(location2.getLatitude() - location.getLatitude(), "lat").setTextSize(TypedValue.COMPLEX_UNIT_SP,60);
 
   /*      if(selectTextView(location2.getLongitude() - location.getLongitude(), "long") != null) {
             selectTextView(location2.getLongitude() - location.getLongitude(), "long").setTextSize(TypedValue.COMPLEX_UNIT_SP,60);
