@@ -20,6 +20,7 @@ public class NavigationViewModel extends ViewModel {
     private Location loc3 = new Location("");
 
     private Date time;
+    public double previousDistance = 0;
 
     public String sensorText;
 

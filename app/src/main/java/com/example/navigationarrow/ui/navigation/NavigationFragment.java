@@ -6,6 +6,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,7 +28,10 @@ import static androidx.core.content.ContextCompat.getSystemService;
 public class NavigationFragment extends Fragment implements LocationListener {
     private NavigationViewModel navigationViewModel;
 
-    //TextView sensorTextView;
+    TextView NText;
+    TextView WText;
+    TextView SText;
+    TextView EText;
     LocationManager locationManager;
     TextView gpsTextView;
     Button reset;
@@ -45,7 +49,10 @@ public class NavigationFragment extends Fragment implements LocationListener {
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0, (android.location.LocationListener) this);
 
 
-        //sensorTextView = root.findViewById(R.id.gpsText2);
+        NText = root.findViewById(R.id.N);
+        EText = root.findViewById(R.id.E);
+        WText = root.findViewById(R.id.W);
+        SText = root.findViewById(R.id.S);
         gpsTextView = root.findViewById(R.id.gpsText);
         reset = root.findViewById(R.id.button2);
         locationIndex = root.findViewById(R.id.gpsText2);
@@ -57,6 +64,7 @@ public class NavigationFragment extends Fragment implements LocationListener {
             }
         });
 
+        //OBSOLETE????
         final Observer<String> dataObserver = new Observer<String>() {
             @Override
             public void onChanged(@Nullable final String newData) {
@@ -64,7 +72,6 @@ public class NavigationFragment extends Fragment implements LocationListener {
                 //sensorTextView.setText(newData);
             }
         };
-
 
         navigationViewModel = ViewModelProviders.of(this).get(NavigationViewModel.class);
         ViewModelProviders.of(getActivity()).get(NavigationViewModel.class).getOrientationValue().observe(this, dataObserver);
@@ -74,11 +81,10 @@ public class NavigationFragment extends Fragment implements LocationListener {
         lastLocationNumber = navigationViewModel.locations.size();
         currentTarget = navigationViewModel.locations.get(currentLocationNumber - 1);
 
-
         return root;
     }
 
-    public void resetButton(View view){
+    public void resetButton(View view) {
 
     }
 
@@ -120,15 +126,37 @@ public class NavigationFragment extends Fragment implements LocationListener {
         location2.setLatitude(51.5162d);
         location2.setLongitude(5.0855d);
 
-        float randomRot = (float) (Math.random() * 100);
-
-        if(distance < 100){
-            //sensorTextView.setText("/");
-        }
-
         locationIndex.setText(currentLocationNumber + "/" + navigationViewModel.locations.size());
 
-        //imageView.setRotation(directionNextCoordinate(location,location2));
+        NText.setTextSize(TypedValue.COMPLEX_UNIT_SP,20);
+        EText.setTextSize(TypedValue.COMPLEX_UNIT_SP,20);
+        WText.setTextSize(TypedValue.COMPLEX_UNIT_SP,20);
+        SText.setTextSize(TypedValue.COMPLEX_UNIT_SP,20);
+            TextView x = selectTextView(location2.getLatitude() - location.getLatitude(), "lat");
+            x.setTextSize(TypedValue.COMPLEX_UNIT_SP, 60);
+        TextView y = selectTextView(location2.getLongitude() - location.getLongitude(), "long");
+        y.setTextSize(TypedValue.COMPLEX_UNIT_SP, 60);
+            //         selectTextView(location2.getLatitude() - location.getLatitude(), "lat").setTextSize(TypedValue.COMPLEX_UNIT_SP,60);
+
+  /*      if(selectTextView(location2.getLongitude() - location.getLongitude(), "long") != null) {
+            selectTextView(location2.getLongitude() - location.getLongitude(), "long").setTextSize(TypedValue.COMPLEX_UNIT_SP,60);
+        }
+*/
+
+    }
+
+    public TextView selectTextView(double longOrLatValue, String longOrLat){
+        if(longOrLatValue > 0 && longOrLat == "long"){
+            return NText;
+        } else if(longOrLatValue < 0 && longOrLat == "long"){
+            return SText;
+        } else if(longOrLatValue > 0 && longOrLat == "lat"){
+            return EText;
+        } else if(longOrLatValue < 0 && longOrLat == "lat"){
+            return WText;
+        } else {
+            return null;
+        }
     }
 
     public double getGPSValue(Location location, String longOrLat) {

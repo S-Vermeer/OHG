@@ -34,6 +34,7 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import com.example.navigationarrow.ui.navigation.NavigationViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.concurrent.TimeUnit;
 
@@ -68,6 +69,7 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
     TextView txtCheck;
     //TextView txtSensor;
     TextView timeText;
+    Snackbar sb;
 
 
     @Override
@@ -77,6 +79,8 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
         super.onCreate(savedInstanceState);
         navModel = (NavigationViewModel) obtainViewModel(this, NavigationViewModel.class);
         DataBindingUtil.setContentView(this, R.layout.activity_adventure);
+
+        sb = Snackbar.make(findViewById(R.id.constraintLayoutAdventure), "test", 3000);
 
         /* ʕ•́ᴥ•̀ʔっ COMPASS DISPLAY ʕ•́ᴥ•̀ʔっ */
 
@@ -220,6 +224,12 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
         } else {
             txtCheck.setText("aaaaah");
         }
+
+
+        if(dist < 50 && navModel.previousDistance >= 50){
+            sb.show();
+        }
+        navModel.previousDistance = dist;
 
         long timeSpent = navModel.getSpentTime();
 
