@@ -135,9 +135,9 @@ public class NavigationViewModel extends ViewModel {
     }
 
     public void setRandomDots(){
-        int[][] array = {};
         Random r = new Random();
         int amount = r.nextInt(16);
+        int[][] array = new int[amount][2];
         for(int i = 0; i < amount; i++){
             array[i][0] = i;
             array[i][1] = i;
