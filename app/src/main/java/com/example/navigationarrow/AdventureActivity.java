@@ -58,6 +58,8 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
     private float[] floatRotationMatrix = new float[9];
     private float[] acceleroOrientation = new float[3];
 
+    public int locationsVisited = 0;
+
     /* ʕ•́ᴥ•̀ʔっ COMPASS VAR END ʕ•́ᴥ•̀ʔっ */
 
     /* ʕ•́ᴥ•̀ʔっ GPS VAR ʕ•́ᴥ•̀ʔっ */
@@ -243,6 +245,7 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
             } else {
                 sb.show();
                 navModel.setNewGoal();
+                locationsVisited = navModel.getLocationsVisited();
             }
         }
         navModel.setTimeLastCheck();

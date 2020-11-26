@@ -17,6 +17,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.*;
+import com.example.navigationarrow.AdventureActivity;
 import com.example.navigationarrow.R;
 
 import java.lang.reflect.Array;
@@ -128,8 +129,10 @@ public class NavigationFragment extends Fragment implements LocationListener {
         if(distance < 100){
             //sensorTextView.setText("/");
         }
+        AdventureActivity activity = (AdventureActivity) getActivity();
+        int locationsVisited = activity.locationsVisited;
 
-        locationIndex.setText(navigationViewModel.getLocationsVisited() + "/" + 4);
+        locationIndex.setText(locationsVisited + 1 + "/" + 4);
 
         ViewGroup.LayoutParams params = (ViewGroup.LayoutParams) home.getLayoutParams();
         params.width = params.width + 10;
