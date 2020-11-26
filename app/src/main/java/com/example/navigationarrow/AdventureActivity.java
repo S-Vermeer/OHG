@@ -34,6 +34,7 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import com.example.navigationarrow.ui.navigation.NavigationViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.concurrent.TimeUnit;
 
@@ -49,11 +50,13 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
 
     private SensorManager sensorManager;
     private Sensor sensorRotationVector;
+    private Sensor acceleroMeter;
 
     //(•◡•)/ Accelerometer (orientation) variables (•◡•)/
 
     private float[] floatOrientation = new float[3];
     private float[] floatRotationMatrix = new float[9];
+    private float[] acceleroOrientation = new float[3];
 
     /* ʕ•́ᴥ•̀ʔっ COMPASS VAR END ʕ•́ᴥ•̀ʔっ */
 
@@ -68,7 +71,9 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
     TextView txtCheck;
     //TextView txtSensor;
     TextView timeText;
+    TextView distanceWalked;
 
+    private Snackbar sb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +83,8 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
         navModel = (NavigationViewModel) obtainViewModel(this, NavigationViewModel.class);
         DataBindingUtil.setContentView(this, R.layout.activity_adventure);
 
+        sb = Snackbar.make(findViewById(R.id.constraintLayoutAdventure), "Op bestemming gekomen", 5000);
+        navModel.setTimeLastCheck();
         /* ʕ•́ᴥ•̀ʔっ COMPASS DISPLAY ʕ•́ᴥ•̀ʔっ */
 
         //(•◡•)/ Assign corresponding values (•◡•)/
@@ -86,6 +93,7 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
         sensorRotationVector = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+        acceleroMeter = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
         //txtSensor = (TextView) findViewById(R.id.gpsText2);
 
@@ -100,13 +108,31 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
             }
         };
 
+        navModel.setRandomWalkingTimeGoal();
+
         sensorManager.registerListener(sensorEventListenerRotationVector, sensorRotationVector, SensorManager.SENSOR_DELAY_NORMAL);
+
+
+        SensorEventListener sensorEventListenerAcceleroMeter = new SensorEventListener() {
+            @Override
+            public void onSensorChanged(SensorEvent event) {
+                acceleroOrientation = event.values;
+            }
+
+            @Override
+            public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+            }
+        };
+
+        sensorManager.registerListener(sensorEventListenerAcceleroMeter, acceleroMeter, SensorManager.SENSOR_DELAY_NORMAL);
         /* ʕ•́ᴥ•̀ʔっ COMPASS DISPLAY END ʕ•́ᴥ•̀ʔっ */
 
         /* ʕ•́ᴥ•̀ʔっ GPS COORDINATES ʕ•́ᴥ•̀ʔっ */
         txtLat = (TextView) findViewById(R.id.gpsText);
         txtCheck = (TextView) findViewById(R.id.textView2);
         timeText = (TextView) findViewById(R.id.timeWalked);
+        distanceWalked = (TextView) findViewById(R.id.distanceWalked);
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
@@ -193,16 +219,26 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
         location2.setLongitude(5.0855d);
 
         double dist = calculateDistanceLongLatPoints(location.getLatitude(), location2.getLatitude(), location.getLongitude(), location2.getLongitude());
-        txtCheck.setText(location.toString());
+        /*txtCheck.setText(location.toString());
         if (dist < 100) {
             txtCheck.setText("smol " + dist);
         } else if (dist > 100) {
             txtCheck.setText("big" + dist);
         } else {
             txtCheck.setText("aaaaah");
-        }
+        }*/
+
 
         long timeSpent = navModel.getSpentTime();
+
+        if(acceleroOrientation[0] != 0){
+            navModel.setActiveWalkingTime();
+        }
+
+        if(navModel.getActiveWalkingTime() >= navModel.getRandomWalkingTimeGoal() && navModel.getActiveWalkingTime() <= navModel.getRandomWalkingTimeGoal() + 1000){
+            sb.show();
+        }
+        navModel.setTimeLastCheck();
 
         timeText.setText(TimeString(timeSpent));
     }

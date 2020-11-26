@@ -23,7 +23,7 @@ public class NavigationViewModel extends ViewModel {
     private Date time;
     private long randomWalkingGoal;
     private long activeWalkingTime;
-
+    private long timeLastCheck;
 
     private int[][] dotsArray;
 
@@ -64,6 +64,15 @@ public class NavigationViewModel extends ViewModel {
         return sensorText;
     }
 
+    public void setTimeLastCheck() {
+        Date now = GregorianCalendar.getInstance().getTime();
+        long updatedTime = now.getTime() - 0;
+        timeLastCheck = updatedTime;
+    }
+
+    public long getTimeLastCheck(){
+        return timeLastCheck;
+    }
 
     public void setReadingsText() {
         float[] currentOrientation = orientation.getValue();
@@ -118,14 +127,16 @@ public class NavigationViewModel extends ViewModel {
     }
 
     public long setActiveWalkingTime(){
-        long active = time.getTime();
-        activeWalkingTime = active;
+        Date currentTime = GregorianCalendar.getInstance().getTime();
+        long active = currentTime.getTime() - timeLastCheck;
+        activeWalkingTime = activeWalkingTime + active;
         return active;
     }
 
     public void setRandomWalkingTimeGoal() {
         Random r = new Random();
-        int randomNum = 360000 + r.nextInt((600000 - 360000) + 1);
+        //int randomNum = 360000 + r.nextInt((600000 - 360000) + 1);
+        int randomNum = 60000 + r.nextInt((120000 - 60000) + 1);
         long seconds = TimeUnit.SECONDS.toSeconds(randomNum);
         randomWalkingGoal = seconds;
     }
