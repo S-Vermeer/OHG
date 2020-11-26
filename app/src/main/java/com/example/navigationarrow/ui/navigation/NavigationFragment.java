@@ -35,6 +35,7 @@ public class NavigationFragment extends Fragment implements LocationListener {
     int lastLocationNumber;
     Location currentTarget;
     TextView locationIndex;
+    ImageView home;
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -49,6 +50,7 @@ public class NavigationFragment extends Fragment implements LocationListener {
         gpsTextView = root.findViewById(R.id.gpsText);
         reset = root.findViewById(R.id.button2);
         locationIndex = root.findViewById(R.id.gpsText2);
+        home = root.findViewById(R.id.imageView);
 
         reset.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -73,14 +75,6 @@ public class NavigationFragment extends Fragment implements LocationListener {
         currentLocationNumber = 1;
         lastLocationNumber = navigationViewModel.locations.size();
         currentTarget = navigationViewModel.locations.get(currentLocationNumber - 1);
-
-
-        /*
-        * Random visualisation
-        *
-        */
-        navigationViewModel.setRandomDots();
-        navigationViewModel.getRandomDots();
 
 
 
@@ -135,7 +129,12 @@ public class NavigationFragment extends Fragment implements LocationListener {
             //sensorTextView.setText("/");
         }
 
-        locationIndex.setText(currentLocationNumber + "/" + navigationViewModel.locations.size());
+        locationIndex.setText(navigationViewModel.getLocationsVisited() + "/" + 4);
+
+        ViewGroup.LayoutParams params = (ViewGroup.LayoutParams) home.getLayoutParams();
+        params.width = params.width + 10;
+// existing height is ok as is, no need to edit it
+        home.setLayoutParams(params);
 
         //imageView.setRotation(directionNextCoordinate(location,location2));
     }
