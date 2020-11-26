@@ -24,6 +24,7 @@ public class NavigationViewModel extends ViewModel {
     private long randomWalkingGoal;
     private long activeWalkingTime;
     private long timeLastCheck;
+    private int locationsVisited;
 
     private int[][] dotsArray;
 
@@ -40,6 +41,8 @@ public class NavigationViewModel extends ViewModel {
         Float f = (float) 0;
         rotationAngle.setValue(f);
         setReadingsText();
+
+        locationsVisited = 0;
 
         time = GregorianCalendar.getInstance().getTime();
 
@@ -133,6 +136,12 @@ public class NavigationViewModel extends ViewModel {
         return active;
     }
 
+    public void setNewGoal(){
+        activeWalkingTime = 0;
+        setRandomWalkingTimeGoal();
+        updateLocationsVisited();
+    }
+
     public void setRandomWalkingTimeGoal() {
         Random r = new Random();
         //int randomNum = 360000 + r.nextInt((600000 - 360000) + 1);
@@ -158,5 +167,13 @@ public class NavigationViewModel extends ViewModel {
 
     public int[][] getRandomDots(){
         return dotsArray;
+    }
+
+    public void updateLocationsVisited(){
+        locationsVisited = locationsVisited + 1;
+    }
+
+    public int getLocationsVisited(){
+        return locationsVisited;
     }
 }

@@ -74,6 +74,7 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
     TextView distanceWalked;
 
     private Snackbar sb;
+    private Snackbar complete;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +85,7 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
         DataBindingUtil.setContentView(this, R.layout.activity_adventure);
 
         sb = Snackbar.make(findViewById(R.id.constraintLayoutAdventure), "Op bestemming gekomen", 5000);
+        complete = Snackbar.make(findViewById(R.id.constraintLayoutAdventure), "Laatste bestemming behaald", 30000);
         navModel.setTimeLastCheck();
         /* ʕ•́ᴥ•̀ʔっ COMPASS DISPLAY ʕ•́ᴥ•̀ʔっ */
 
@@ -219,14 +221,14 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
         location2.setLongitude(5.0855d);
 
         double dist = calculateDistanceLongLatPoints(location.getLatitude(), location2.getLatitude(), location.getLongitude(), location2.getLongitude());
-        /*txtCheck.setText(location.toString());
+        txtCheck.setText(location.toString());
         if (dist < 100) {
             txtCheck.setText("smol " + dist);
         } else if (dist > 100) {
             txtCheck.setText("big" + dist);
         } else {
             txtCheck.setText("aaaaah");
-        }*/
+        }
 
 
         long timeSpent = navModel.getSpentTime();
@@ -236,11 +238,16 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
         }
 
         if(navModel.getActiveWalkingTime() >= navModel.getRandomWalkingTimeGoal() && navModel.getActiveWalkingTime() <= navModel.getRandomWalkingTimeGoal() + 1000){
-            sb.show();
+            if(navModel.getLocationsVisited() > 3){
+                complete.show();
+            } else {
+                sb.show();
+                navModel.setNewGoal();
+            }
         }
         navModel.setTimeLastCheck();
-
         timeText.setText(TimeString(timeSpent));
+
     }
 
 
