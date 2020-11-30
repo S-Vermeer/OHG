@@ -165,7 +165,8 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
 
         locationRequest = LocationRequest.create();
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        locationRequest.setInterval(1 * 1000);
+        locationRequest.setInterval(5000);
+        locationRequest.setFastestInterval(5000);
 
 
 
