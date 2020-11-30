@@ -9,6 +9,7 @@ import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.app.Notification;
 import android.content.Context;
+import android.content.IntentSender;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -16,10 +17,12 @@ import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
@@ -33,6 +36,11 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import com.example.navigationarrow.ui.navigation.NavigationViewModel;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.ResolvableApiException;
+import com.google.android.gms.location.*;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -45,6 +53,14 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
     /* ʕ•́ᴥ•̀ʔっ COMPASS VAR  ʕ•́ᴥ•̀ʔっ*/
 
     private NavigationViewModel navModel;
+    private FusedLocationProviderClient fusedLocationClient;
+    private LocationRequest locationRequest;
+    private LocationCallback locationCallback;
+
+    private SettingsClient mSettingsClient;
+    private LocationSettingsRequest mLocationSettingsRequest;
+
+
 
     //(•◡•)/ Sensor setup (•◡•)/
 
@@ -74,6 +90,7 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
     //TextView txtSensor;
     TextView timeText;
     TextView distanceWalked;
+
 
     private Snackbar sb;
     private Snackbar complete;
@@ -139,7 +156,57 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
         distanceWalked = (TextView) findViewById(R.id.distanceWalked);
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        mSettingsClient = LocationServices.getSettingsClient(this);
+
+
+
+        locationRequest = LocationRequest.create();
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        locationRequest.setInterval(1 * 1000);
+
+
+
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                super.onLocationResult(locationResult);
+
+                Location location = locationResult.getLastLocation();
+                if (locationResult == null) {
+                    return;
+                }
+                    if (location != null) {
+                        locationChange(location);
+
+            }
+            }
+        };
+
+        buildLocationSettingsRequest();
+
+
+        mSettingsClient.checkLocationSettings(mLocationSettingsRequest)
+                .addOnSuccessListener(this, locationSettingsResponse -> {
+
+                    //noinspection MissingPermission
+                    fusedLocationClient.requestLocationUpdates(locationRequest,
+                            locationCallback, Looper.myLooper());
+
+                });
+
+        fusedLocationClient.requestLocationUpdates(locationRequest,
+                locationCallback, Looper.myLooper());
+
+        fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
+            if (location != null) {
+                locationChange(location);
+            }
+        });
+
+
         /* ʕ•́ᴥ•̀ʔっ GPS COORDINATES END ʕ•́ᴥ•̀ʔっ */
 
         BottomNavigationView navView = findViewById(R.id.nav_view_adventure);
@@ -152,6 +219,8 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(navView, navController);
     }
+
+
 
     // ʕ•́ᴥ•̀ʔっ Making GPS coordinates visible in DMS notation ʕ•́ᴥ•̀ʔっ
 
@@ -209,7 +278,11 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
 
     @Override
     public void onLocationChanged(Location location) {
+        //locationChange(location);
 
+    }
+
+    public void locationChange(Location location) {
         /* ᕙ(`▿´)ᕗ if the location has changed, the text should be updated to the corresponding coordinates.
         Currently also features longitude and latitude for control purposes ᕙ(`▿´)ᕗ */
 
@@ -250,7 +323,6 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
         }
         navModel.setTimeLastCheck();
         timeText.setText(TimeString(timeSpent));
-
     }
 
 
@@ -335,10 +407,19 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
         Log.d("Latitude", "enable");
     }
 
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-        Log.d("Latitude", "status");
+    public int getPercentageWalkingDone(){
+        long goal = navModel.getRandomWalkingTimeGoal();
+        long walked = navModel.getActiveWalkingTime();
+        int percentage = Math.toIntExact(walked / goal) * 100;
+        return percentage;
     }
+
+    private void buildLocationSettingsRequest() {
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
+        builder.addLocationRequest(locationRequest);
+        mLocationSettingsRequest = builder.build();
+    }
+
 
 
 }

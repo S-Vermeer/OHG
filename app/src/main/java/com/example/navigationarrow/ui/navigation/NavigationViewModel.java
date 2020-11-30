@@ -26,7 +26,6 @@ public class NavigationViewModel extends ViewModel {
     private long timeLastCheck;
     private int locationsVisited;
 
-    private int[][] dotsArray;
 
     public String sensorText;
 
@@ -154,20 +153,6 @@ public class NavigationViewModel extends ViewModel {
         return randomWalkingGoal;
     }
 
-    public void setRandomDots(){
-        Random r = new Random();
-        int amount = r.nextInt(16);
-        int[][] array = new int[amount][2];
-        for(int i = 0; i < amount; i++){
-            array[i][0] = i;
-            array[i][1] = i;
-        }
-        dotsArray = array;
-    }
-
-    public int[][] getRandomDots(){
-        return dotsArray;
-    }
 
     public void updateLocationsVisited(){
         locationsVisited = locationsVisited + 1;
