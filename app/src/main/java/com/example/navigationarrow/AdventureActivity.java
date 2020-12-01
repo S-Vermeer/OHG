@@ -44,6 +44,8 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.Math.floor;
@@ -56,6 +58,7 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
     private FusedLocationProviderClient fusedLocationClient;
     private LocationRequest locationRequest;
     private LocationCallback locationCallback;
+    private Timer timer;
 
     private SettingsClient mSettingsClient;
     private LocationSettingsRequest mLocationSettingsRequest;
@@ -167,24 +170,38 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         locationRequest.setInterval(5000);
         locationRequest.setFastestInterval(5000);
-
-
-
-        locationCallback = new LocationCallback() {
+        timer = new Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
             @Override
-            public void onLocationResult(LocationResult locationResult) {
-                super.onLocationResult(locationResult);
+            public void run() {
+                Long spentTime = navModel.getSpentTime();
 
-                Location location = locationResult.getLastLocation();
-                if (locationResult == null) {
-                    return;
-                }
-                    if (location != null) {
-                        locationChange(location);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        timeText.setText(TimeString(spentTime));
+                    }
+                });
 
             }
-            }
-        };
+        },0, 5 /*ELEPHANT interval*/);
+
+
+                locationCallback = new LocationCallback() {
+                    @Override
+                    public void onLocationResult(LocationResult locationResult) {
+                        super.onLocationResult(locationResult);
+
+                        Location location = locationResult.getLastLocation();
+                        if (locationResult == null) {
+                            return;
+                        }
+                        if (location != null) {
+                            locationChange(location);
+
+                        }
+                    }
+                };
 
         buildLocationSettingsRequest();
 
@@ -424,3 +441,23 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
 
 
 }
+
+
+/*
+timer.scheduleAtFixedRate(new TimerTask() {
+
+        @Override
+        public void run() {
+            Long spentTime = System.currentTimeMillis() - startTime;
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+
+                }
+            });
+
+        }
+    },0, interval);
+
+ */
