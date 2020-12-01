@@ -27,6 +27,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import androidx.databinding.DataBindingUtil;
+import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
@@ -36,6 +37,7 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import com.example.navigationarrow.ui.navigation.NavigationViewModel;
+import com.example.navigationarrow.ui.story.StoryViewModel;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.*;
@@ -50,7 +52,7 @@ import java.util.concurrent.TimeUnit;
 
 import static java.lang.Math.floor;
 
-public class AdventureActivity extends AppCompatActivity implements LocationListener {
+public class AdventureActivity extends AppCompatActivity /*implements LocationListener*/ {
 
     /* ʕ•́ᴥ•̀ʔっ COMPASS VAR  ʕ•́ᴥ•̀ʔっ*/
 
@@ -98,12 +100,16 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
     private Snackbar sb;
     private Snackbar complete;
 
+    private StoryViewModel storyModel;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         //ᕙ(`▿´)ᕗ Mandatory in onCreate ᕙ(`▿´)ᕗ
         super.onCreate(savedInstanceState);
         navModel = (NavigationViewModel) obtainViewModel(this, NavigationViewModel.class);
+        storyModel = (StoryViewModel) obtainViewModel(this, StoryViewModel.class);
         DataBindingUtil.setContentView(this, R.layout.activity_adventure);
 
         sb = Snackbar.make(findViewById(R.id.constraintLayoutAdventure), "Op bestemming gekomen", 5000);
@@ -158,9 +164,6 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
         timeText = (TextView) findViewById(R.id.timeWalked);
         distanceWalked = (TextView) findViewById(R.id.distanceWalked);
 
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         mSettingsClient = LocationServices.getSettingsClient(this);
 
@@ -238,76 +241,11 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
         NavigationUI.setupWithNavController(navView, navController);
     }
 
-
-
-    // ʕ•́ᴥ•̀ʔっ Making GPS coordinates visible in DMS notation ʕ•́ᴥ•̀ʔっ
-
-    //(•◡•)/ Get wind direction letter from long- and latitude (•◡•)/
-    public char windDir(String longOrLat, double value) {
-        char windDir;
-        if (longOrLat == "lat" && value >= 0) {
-            windDir = 'N';
-        } else if (longOrLat == "lat" && value < 0) {
-            windDir = 'S';
-        } else if (longOrLat == "long" && value >= 0) {
-            windDir = 'E';
-        } else if (longOrLat == "long" && value < 0) {
-            windDir = 'W';
-        } else {
-            windDir = 'X'; //ᕙ(`▿´)ᕗ In case something goes wrong, still initialisation of windDir ᕙ(`▿´)ᕗ
-        }
-        return windDir;
-    }
-
-    public String getLongOrLatitude(double gpsValue, String longOrLat) {
-        char windDir = windDir(longOrLat, gpsValue);
-        if (gpsValue < 0) {
-            gpsValue = gpsValue * -1;
-        }
-
-        /* ᕙ(`▿´)ᕗ DMS notation is both for longitude and latitude the full value (so no decimals), then get the
-        remaining value * 60 and the full value from that and repeat once more. Its the most commonly used formatting of GPS coordinates ᕙ(`▿´)ᕗ */
-        double gpsHours = floor(gpsValue);
-        String hourStr = String.format("%.0f", gpsHours);
-        double gpsMin = floor((gpsValue - gpsHours) * 60);
-        String minStr = String.format("%.0f", gpsMin);
-        double gpsSec = (gpsValue - gpsHours - (gpsMin / 60)) * 3600;
-        String secStr = String.format("%.3f", gpsSec);
-        String gps = windDir + hourStr + "° " + minStr + "' " + secStr + "\"";
-        return gps;
-    }
-
-    public double getGPSValue(Location location, String longOrLat) {
-        double longLatValue;
-        if (longOrLat == "lat") {
-            longLatValue = location.getLatitude();
-        } else if (longOrLat == "long") {
-            longLatValue = location.getLongitude();
-
-        } else {
-            longLatValue = 69696969; //ᕙ(`▿´)ᕗ Mock value in case something goes wrong with the connection to the sensors ᕙ(`▿´)ᕗ
-        }
-
-        return longLatValue;
-    }
-
-    //ʕ•́ᴥ•̀ʔっ MAKING  GPS COORDINATES VISIBLE IN DMS NOTATION END ʕ•́ᴥ•̀ʔっ
-
-
-    @Override
-    public void onLocationChanged(Location location) {
-        //locationChange(location);
-
-    }
-
     public void locationChange(Location location) {
         /* ᕙ(`▿´)ᕗ if the location has changed, the text should be updated to the corresponding coordinates.
         Currently also features longitude and latitude for control purposes ᕙ(`▿´)ᕗ */
 
-        double distance = calculateDistanceLongLatPoints(location.getLatitude(), location.getLatitude() + 0.5, location.getLongitude(), location.getLongitude() + 0.5);
-
         txtLat = (TextView) findViewById(R.id.gpsText);
-        //txtLat.setText("Latitude:" + getLongOrLatitude(getGPSValue(location, "lat"), "lat") + ", \n" + location.getLatitude() + " \n Longitude:" + getLongOrLatitude(getGPSValue(location, "long"), "long") + "\n " + location.getLongitude() + "\n " + distance);
 
         Location location2 = new Location("");
         location2.setLatitude(51.5162d);
@@ -331,13 +269,15 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
         }
 
         if(navModel.getActiveWalkingTime() >= navModel.getRandomWalkingTimeGoal() && navModel.getActiveWalkingTime() <= navModel.getRandomWalkingTimeGoal() + 6000){
-            if(navModel.getLocationsVisited() == 3){
+            if(navModel.getLocationsVisited() == 3 && navModel.getCompletedAdventure() != true){
                 complete.show();
                 navModel.setCompletedAdventure(true);
+                storyModel.updateStoryPartIndex();
             } else if(navModel.getCompletedAdventure() != true) {
                 sb.show();
                 navModel.setNewGoal();
                 locationsVisited = navModel.getLocationsVisited();
+                storyModel.updateStoryPartIndex();
             }
         }
         navModel.setTimeLastCheck();
@@ -374,19 +314,6 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
         return haversine;
     }
 
-    //(•◡•)/ direction of an arrow (degrees to turn) to the next coordinate  (•◡•)/
-    public float directionNextCoordinate(Location location1, Location location2) {
-        float direction = location1.bearingTo(location2);
-
-        float phoneOrientation = (float) (-floatOrientation[0] * 180 / 3.14159);
-        float turnAngle = direction - phoneOrientation;
-
-        return turnAngle;
-
-        //≧◉◡◉≦ TOFIX Enhance turnangle so phone rotation + bearing vs true north next location = direction arrow  ≧◉◡◉≦
-
-    }
-
     public String TimeString(long timeSpent){
         long totalSeconds = TimeUnit.MILLISECONDS.toSeconds(timeSpent);
         double minutes = floor(TimeUnit.MILLISECONDS.toMinutes(timeSpent));
@@ -414,16 +341,6 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
     protected final <T extends ViewModel> ViewModel obtainViewModel(@NonNull AppCompatActivity activity, @NonNull Class<T> modelClass) {
         ViewModelProvider.AndroidViewModelFactory factory = ViewModelProvider.AndroidViewModelFactory.getInstance(activity.getApplication());
         return new ViewModelProvider(activity, factory).get(modelClass);
-    }
-
-    @Override
-    public void onProviderDisabled(String provider) {
-        Log.d("Latitude", "disable");
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-        Log.d("Latitude", "enable");
     }
 
     public int getPercentageWalkingDone(){

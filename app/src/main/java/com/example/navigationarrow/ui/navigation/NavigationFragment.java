@@ -22,9 +22,8 @@ import androidx.lifecycle.*;
 import com.example.navigationarrow.AdventureActivity;
 import com.example.navigationarrow.R;
 import com.google.android.gms.location.*;
-import com.google.android.gms.tasks.OnSuccessListener;
 
-public class NavigationFragment extends Fragment implements LocationListener {
+public class NavigationFragment extends Fragment {
     private NavigationViewModel navigationViewModel;
 
     private FusedLocationProviderClient fusedLocationClient;
@@ -36,8 +35,6 @@ public class NavigationFragment extends Fragment implements LocationListener {
 
 
 
-    //TextView sensorTextView;
-    LocationManager locationManager;
     TextView gpsTextView;
     Button reset;
     int currentLocationNumber;
@@ -51,16 +48,6 @@ public class NavigationFragment extends Fragment implements LocationListener {
         navigationViewModel = (NavigationViewModel) obtainFragmentViewModel(getActivity(), NavigationViewModel.class);
         View root = inflater.inflate(R.layout.fragment_navigation, container, false);
 
-        locationManager= (LocationManager)getActivity().getSystemService(Context.LOCATION_SERVICE);
-
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,400,0, this);
-
-//        Location loc = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-
-  //      Log.d("fff", loc.toString());
-
-
-        //sensorTextView = root.findViewById(R.id.gpsText2);
         gpsTextView = root.findViewById(R.id.gpsText);
         reset = root.findViewById(R.id.button2);
         locationIndex = root.findViewById(R.id.gpsText2);
@@ -70,17 +57,7 @@ public class NavigationFragment extends Fragment implements LocationListener {
 
         reset.setOnClickListener(v -> resetButton(v));
 
-/*        final Observer<String> dataObserver = new Observer<String>() {
-            @Override
-            public void onChanged(@Nullable final String newData) {
-                // Update the UI, in this case, a TextView.
-                //sensorTextView.setText(newData);
-            }
-        };
-*/
-
         navigationViewModel = ViewModelProviders.of(this).get(NavigationViewModel.class);
-        //ViewModelProviders.of(getActivity()).get(NavigationViewModel.class).getOrientationValue().observe(this, dataObserver);
 
 
         currentLocationNumber = 1;
@@ -154,8 +131,6 @@ public class NavigationFragment extends Fragment implements LocationListener {
     @Override
     public void onResume() {
         super.onResume();
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 400, 0, this);
-
         navigationViewModel.getRotationAngle().observe(getViewLifecycleOwner(), new Observer<Float>() {
             @Override
             public void onChanged(Float aFloat) {
@@ -168,10 +143,6 @@ public class NavigationFragment extends Fragment implements LocationListener {
         return new ViewModelProvider(fragment, factory).get(modelClass);
     }
 
-    @Override
-    public void onLocationChanged(Location location) {
-        //locationChange(location);
-    }
 
     public void locationChange(Location location){
         String lat = getLongOrLatitude(getGPSValue(location,"lat"), "lat");
@@ -181,7 +152,10 @@ public class NavigationFragment extends Fragment implements LocationListener {
         Currently also features longitude and latitude for control purposes ᕙ(`▿´)ᕗ */
 
         AdventureActivity activity = (AdventureActivity) getActivity();
-        int locationsVisited = activity.locationsVisited;
+        int locationsVisited = 10;
+        if(activity != null) {
+            locationsVisited = activity.locationsVisited;
+        }
 
         locationIndex.setText(locationsVisited + 1 + "/" + 4);
 
@@ -246,28 +220,6 @@ public class NavigationFragment extends Fragment implements LocationListener {
         String secStr = String.format("%.3f", gpsSec);
         String gps = windDir + hourStr + "° " + minStr + "' " + secStr + "\"";
         return gps;
-    }
-
-    public double calculateDistanceLongLatPoints(double lat1, double lat2, double long1, double long2) {
-        double radiusEarth = 6371e3;
-
-        double radLat1 = lat1 * Math.PI / 180;
-        double radLat2 = lat2 * Math.PI / 180;
-        double radLong1 = long1 * Math.PI / 180;
-        double radLong2 = long2 * Math.PI / 180;
-
-
-        double sineSquaredDifLatitudes = Math.pow(Math.sin((radLat2 - radLat1) / 2), 2);
-        double cosineLat1 = Math.cos(radLat1);
-        double cosineLat2 = Math.cos(radLat2);
-        double sineSquaredDifLongitudes = Math.pow(Math.sin((radLong2 - radLong1) / 2), 2);
-
-        double squareRoot = Math.sqrt(sineSquaredDifLatitudes + (cosineLat1 * cosineLat2 * sineSquaredDifLongitudes));
-        double arcsine = Math.asin(squareRoot);
-
-        double haversine = (2 * radiusEarth) * arcsine;
-
-        return haversine;
     }
 
     private void buildLocationSettingsRequest() {
