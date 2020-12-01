@@ -26,6 +26,8 @@ public class NavigationViewModel extends ViewModel {
     private long timeLastCheck;
     private int locationsVisited;
 
+    private boolean completedAdventure = false;
+
 
     public String sensorText;
 
@@ -160,5 +162,13 @@ public class NavigationViewModel extends ViewModel {
 
     public int getLocationsVisited(){
         return locationsVisited;
+    }
+
+    public boolean getCompletedAdventure() {
+        return completedAdventure;
+    }
+
+    public void setCompletedAdventure(boolean value) {
+        completedAdventure = value;
     }
 }

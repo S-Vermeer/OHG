@@ -330,10 +330,11 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
             navModel.setActiveWalkingTime();
         }
 
-        if(navModel.getActiveWalkingTime() >= navModel.getRandomWalkingTimeGoal() && navModel.getActiveWalkingTime() <= navModel.getRandomWalkingTimeGoal() + 1000){
-            if(navModel.getLocationsVisited() > 3){
+        if(navModel.getActiveWalkingTime() >= navModel.getRandomWalkingTimeGoal() && navModel.getActiveWalkingTime() <= navModel.getRandomWalkingTimeGoal() + 6000){
+            if(navModel.getLocationsVisited() == 3){
                 complete.show();
-            } else {
+                navModel.setCompletedAdventure(true);
+            } else if(navModel.getCompletedAdventure() != true) {
                 sb.show();
                 navModel.setNewGoal();
                 locationsVisited = navModel.getLocationsVisited();
@@ -428,7 +429,7 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
     public int getPercentageWalkingDone(){
         long goal = navModel.getRandomWalkingTimeGoal();
         long walked = navModel.getActiveWalkingTime();
-        int percentage = Math.toIntExact(walked / goal) * 100;
+        int percentage = Math.toIntExact(walked * 100 / goal);
         return percentage;
     }
 
@@ -441,23 +442,3 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
 
 
 }
-
-
-/*
-timer.scheduleAtFixedRate(new TimerTask() {
-
-        @Override
-        public void run() {
-            Long spentTime = System.currentTimeMillis() - startTime;
-
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-
-                }
-            });
-
-        }
-    },0, interval);
-
- */

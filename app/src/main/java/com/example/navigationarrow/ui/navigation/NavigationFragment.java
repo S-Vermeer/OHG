@@ -6,7 +6,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.Looper;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,6 +30,10 @@ public class NavigationFragment extends Fragment implements LocationListener {
     private FusedLocationProviderClient fusedLocationClient;
     private LocationRequest locationRequest;
     private LocationCallback locationCallback;
+
+    private SettingsClient mSettingsClient;
+    private LocationSettingsRequest mLocationSettingsRequest;
+
 
 
     //TextView sensorTextView;
@@ -86,6 +90,8 @@ public class NavigationFragment extends Fragment implements LocationListener {
 
         Activity activity = (AdventureActivity) getActivity();
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(activity);
+        mSettingsClient = LocationServices.getSettingsClient(activity);
+
 
         locationRequest = LocationRequest.create();
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
@@ -94,15 +100,33 @@ public class NavigationFragment extends Fragment implements LocationListener {
         locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
+                super.onLocationResult(locationResult);
+
+                Location location = locationResult.getLastLocation();
                 if (locationResult == null) {
                     return;
                 }
-                for (Location location : locationResult.getLocations()) {
-                    if (location != null) {
-                        locationChange(location);            }
+                if (location != null) {
+                    locationChange(location);
+
                 }
             }
         };
+
+        buildLocationSettingsRequest();
+
+
+        mSettingsClient.checkLocationSettings(mLocationSettingsRequest)
+                .addOnSuccessListener(activity, locationSettingsResponse -> {
+
+                    //noinspection MissingPermission
+                    fusedLocationClient.requestLocationUpdates(locationRequest,
+                            locationCallback, Looper.myLooper());
+
+                });
+
+        fusedLocationClient.requestLocationUpdates(locationRequest,
+                locationCallback, Looper.myLooper());
 
         fusedLocationClient.getLastLocation().addOnSuccessListener(activity, location -> {
             if (location != null) {
@@ -167,6 +191,10 @@ public class NavigationFragment extends Fragment implements LocationListener {
         params.width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,calculateWidth, getResources().getDisplayMetrics());
 // existing height is ok as is, no need to edit it
         home.setLayoutParams(params);
+
+        if(calculateWidth > 200){
+            navigationViewModel = (NavigationViewModel) obtainFragmentViewModel(getActivity(), NavigationViewModel.class);
+        }
 
         //imageView.setRotation(directionNextCoordinate(location,location2));
 
@@ -241,6 +269,14 @@ public class NavigationFragment extends Fragment implements LocationListener {
 
         return haversine;
     }
+
+    private void buildLocationSettingsRequest() {
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
+        builder.addLocationRequest(locationRequest);
+        mLocationSettingsRequest = builder.build();
+    }
+
+
 
 
 }
