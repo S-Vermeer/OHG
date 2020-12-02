@@ -52,14 +52,14 @@ import java.util.concurrent.TimeUnit;
 
 import static java.lang.Math.floor;
 
-public class AdventureActivity extends AppCompatActivity /*implements LocationListener*/ {
+public class AdventureActivity extends AppCompatActivity/*implements LocationListener*/ {
 
+    /*ʕ•́ᴥ•̀ʔっ Location interaction VAR  ʕ•́ᴥ•̀ʔっ */
+    LocationInteraction locationInteraction;
     /* ʕ•́ᴥ•̀ʔっ COMPASS VAR  ʕ•́ᴥ•̀ʔっ*/
 
     private NavigationViewModel navModel;
-    private FusedLocationProviderClient fusedLocationClient;
-    private LocationRequest locationRequest;
-    private LocationCallback locationCallback;
+
     private Timer timer;
 
     private SettingsClient mSettingsClient;
@@ -110,6 +110,7 @@ public class AdventureActivity extends AppCompatActivity /*implements LocationLi
         super.onCreate(savedInstanceState);
         navModel = (NavigationViewModel) obtainViewModel(this, NavigationViewModel.class);
         storyModel = (StoryViewModel) obtainViewModel(this, StoryViewModel.class);
+        locationInteraction = new LocationInteraction(this);
         DataBindingUtil.setContentView(this, R.layout.activity_adventure);
 
         sb = Snackbar.make(findViewById(R.id.constraintLayoutAdventure), "Op bestemming gekomen", 5000);
@@ -164,15 +165,7 @@ public class AdventureActivity extends AppCompatActivity /*implements LocationLi
         timeText = (TextView) findViewById(R.id.timeWalked);
         distanceWalked = (TextView) findViewById(R.id.distanceWalked);
 
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        mSettingsClient = LocationServices.getSettingsClient(this);
 
-
-
-        locationRequest = LocationRequest.create();
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        locationRequest.setInterval(5000);
-        locationRequest.setFastestInterval(5000);
         timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
@@ -190,42 +183,10 @@ public class AdventureActivity extends AppCompatActivity /*implements LocationLi
         },0, 5 /*ELEPHANT interval*/);
 
 
-                locationCallback = new LocationCallback() {
-                    @Override
-                    public void onLocationResult(LocationResult locationResult) {
-                        super.onLocationResult(locationResult);
-
-                        Location location = locationResult.getLastLocation();
-                        if (locationResult == null) {
-                            return;
-                        }
-                        if (location != null) {
-                            locationChange(location);
-
-                        }
-                    }
-                };
-
-        buildLocationSettingsRequest();
+        locationInteraction.locIntInit();
+        locationInteraction.buildLocationSettingsRequest();
 
 
-        mSettingsClient.checkLocationSettings(mLocationSettingsRequest)
-                .addOnSuccessListener(this, locationSettingsResponse -> {
-
-                    //noinspection MissingPermission
-                    fusedLocationClient.requestLocationUpdates(locationRequest,
-                            locationCallback, Looper.myLooper());
-
-                });
-
-        fusedLocationClient.requestLocationUpdates(locationRequest,
-                locationCallback, Looper.myLooper());
-
-        fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
-            if (location != null) {
-                locationChange(location);
-            }
-        });
 
 
         /* ʕ•́ᴥ•̀ʔっ GPS COORDINATES END ʕ•́ᴥ•̀ʔっ */
@@ -251,7 +212,7 @@ public class AdventureActivity extends AppCompatActivity /*implements LocationLi
         location2.setLatitude(51.5162d);
         location2.setLongitude(5.0855d);
 
-        double dist = calculateDistanceLongLatPoints(location.getLatitude(), location2.getLatitude(), location.getLongitude(), location2.getLongitude());
+        double dist = locationInteraction.getDistanceBetweenLongLatPoints(location.getLatitude(), location2.getLatitude(), location.getLongitude(), location2.getLongitude());
         txtCheck.setText(location.toString());
         if (dist < 100) {
             txtCheck.setText("smol " + dist);
@@ -287,32 +248,6 @@ public class AdventureActivity extends AppCompatActivity /*implements LocationLi
 
     /* ʕ•́ᴥ•̀ʔっ NAVIGATION TO NEXT COORDINATE ʕ•́ᴥ•̀ʔっ */
 
-    /* ᕙ(`▿´)ᕗ HAVERSINE FORMULE:
-    distance between two coordinates = 2 * radiusEarth * (arcsin ( root of (sine^2(difference between latitudes / 2)
-    + cosine(latitude 1) * cosine(latitude 2) * sine^2(difference between longitudes / 2))))   ᕙ(`▿´)ᕗ */
-
-    //(•◡•)/ distance (meters) between two coordinates (give long and latitude of two points)  (•◡•)/
-    public double calculateDistanceLongLatPoints(double lat1, double lat2, double long1, double long2) {
-        double radiusEarth = 6371e3;
-
-        double radLat1 = lat1 * Math.PI / 180;
-        double radLat2 = lat2 * Math.PI / 180;
-        double radLong1 = long1 * Math.PI / 180;
-        double radLong2 = long2 * Math.PI / 180;
-
-
-        double sineSquaredDifLatitudes = Math.pow(Math.sin((radLat2 - radLat1) / 2), 2);
-        double cosineLat1 = Math.cos(radLat1);
-        double cosineLat2 = Math.cos(radLat2);
-        double sineSquaredDifLongitudes = Math.pow(Math.sin((radLong2 - radLong1) / 2), 2);
-
-        double squareRoot = Math.sqrt(sineSquaredDifLatitudes + (cosineLat1 * cosineLat2 * sineSquaredDifLongitudes));
-        double arcsine = Math.asin(squareRoot);
-
-        double haversine = (2 * radiusEarth) * arcsine;
-
-        return haversine;
-    }
 
     public String TimeString(long timeSpent){
         long totalSeconds = TimeUnit.MILLISECONDS.toSeconds(timeSpent);
@@ -332,10 +267,6 @@ public class AdventureActivity extends AppCompatActivity /*implements LocationLi
     }
 
 
-
-
-
-
     /* ʕ•́ᴥ•̀ʔっ NAVIGATION TO NEXT COORDINATE END ʕ•́ᴥ•̀ʔっ */
 
     protected final <T extends ViewModel> ViewModel obtainViewModel(@NonNull AppCompatActivity activity, @NonNull Class<T> modelClass) {
@@ -349,13 +280,5 @@ public class AdventureActivity extends AppCompatActivity /*implements LocationLi
         int percentage = Math.toIntExact(walked * 100 / goal);
         return percentage;
     }
-
-    private void buildLocationSettingsRequest() {
-        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
-        builder.addLocationRequest(locationRequest);
-        mLocationSettingsRequest = builder.build();
-    }
-
-
 
 }

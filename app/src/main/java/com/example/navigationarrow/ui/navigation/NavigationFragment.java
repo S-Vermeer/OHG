@@ -20,19 +20,16 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.*;
 import com.example.navigationarrow.AdventureActivity;
+import com.example.navigationarrow.LocationInteraction;
 import com.example.navigationarrow.R;
 import com.google.android.gms.location.*;
 
 public class NavigationFragment extends Fragment {
     private NavigationViewModel navigationViewModel;
 
-    private FusedLocationProviderClient fusedLocationClient;
-    private LocationRequest locationRequest;
-    private LocationCallback locationCallback;
+    private LocationInteraction locationInteraction;
 
-    private SettingsClient mSettingsClient;
-    private LocationSettingsRequest mLocationSettingsRequest;
-
+    private Location lastLocation;
 
 
     TextView gpsTextView;
@@ -47,6 +44,7 @@ public class NavigationFragment extends Fragment {
 
         navigationViewModel = (NavigationViewModel) obtainFragmentViewModel(getActivity(), NavigationViewModel.class);
         View root = inflater.inflate(R.layout.fragment_navigation, container, false);
+
 
         gpsTextView = root.findViewById(R.id.gpsText);
         reset = root.findViewById(R.id.button2);
@@ -64,56 +62,12 @@ public class NavigationFragment extends Fragment {
         lastLocationNumber = navigationViewModel.locations.size();
         currentTarget = navigationViewModel.locations.get(currentLocationNumber - 1);
 
-
-        Activity activity = (AdventureActivity) getActivity();
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(activity);
-        mSettingsClient = LocationServices.getSettingsClient(activity);
-
-
-        locationRequest = LocationRequest.create();
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        locationRequest.setInterval(20 * 1000);
-
-        locationCallback = new LocationCallback() {
-            @Override
-            public void onLocationResult(LocationResult locationResult) {
-                super.onLocationResult(locationResult);
-
-                Location location = locationResult.getLastLocation();
-                if (locationResult == null) {
-                    return;
-                }
-                if (location != null) {
-                    locationChange(location);
-
-                }
-            }
-        };
-
-        buildLocationSettingsRequest();
-
-
-        mSettingsClient.checkLocationSettings(mLocationSettingsRequest)
-                .addOnSuccessListener(activity, locationSettingsResponse -> {
-
-                    //noinspection MissingPermission
-                    fusedLocationClient.requestLocationUpdates(locationRequest,
-                            locationCallback, Looper.myLooper());
-
-                });
-
-        fusedLocationClient.requestLocationUpdates(locationRequest,
-                locationCallback, Looper.myLooper());
-
-        fusedLocationClient.getLastLocation().addOnSuccessListener(activity, location -> {
-            if (location != null) {
-                locationChange(location);
-            }
-        });
-
+        //locationInteraction.locIntInit();
 
         return root;
     }
+
+
 
     public void resetButton(View view){
 
@@ -123,6 +77,22 @@ public class NavigationFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        Activity activity = (AdventureActivity) getActivity();
+        locationInteraction = new LocationInteraction(activity);
+        locationInteraction.locIntInit();
+        locationInteraction.buildLocationSettingsRequest();
+        locationInteraction.checkLocationUpdates();
+
+        //AAAAAAH
+        lastLocation = locationInteraction.curLoc.getValue();
+
+        locationInteraction.curLoc.observe(getViewLifecycleOwner(), new Observer<Location>() {
+            @Override
+            public void onChanged(Location location) {
+                locationChange(location);
+            }
+        });
+
         // Create the observer which updates the UI.
 
         //navigationViewModel.getOrientationValue().observe(getViewLifecycleOwner(), dataObserver);
@@ -131,11 +101,7 @@ public class NavigationFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        navigationViewModel.getRotationAngle().observe(getViewLifecycleOwner(), new Observer<Float>() {
-            @Override
-            public void onChanged(Float aFloat) {
-            }
-        });
+        locationChange(lastLocation);
     }
 
     protected final <T extends ViewModel> ViewModel obtainFragmentViewModel(@NonNull FragmentActivity fragment, @NonNull Class<T> modelClass) {
@@ -145,8 +111,8 @@ public class NavigationFragment extends Fragment {
 
 
     public void locationChange(Location location){
-        String lat = getLongOrLatitude(getGPSValue(location,"lat"), "lat");
-        String lon = getLongOrLatitude(getGPSValue(location,"long"), "long");
+        String lat = locationInteraction.getLongOrLatitude(locationInteraction.getGPSValue(location,"lat"), "lat");
+        String lon = locationInteraction.getLongOrLatitude(locationInteraction.getGPSValue(location,"long"), "long");
         gpsTextView.setText(lat + "\n" + lon);
         /* ᕙ(`▿´)ᕗ if the location has changed, the text should be updated to the corresponding coordinates.
         Currently also features longitude and latitude for control purposes ᕙ(`▿´)ᕗ */
@@ -173,61 +139,6 @@ public class NavigationFragment extends Fragment {
         //imageView.setRotation(directionNextCoordinate(location,location2));
 
     }
-
-    public double getGPSValue(Location location, String longOrLat) {
-        double longLatValue;
-        if (longOrLat == "lat") {
-            longLatValue = location.getLatitude();
-        } else if (longOrLat == "long") {
-            longLatValue = location.getLongitude();
-
-        } else {
-            longLatValue = 69696969; //ᕙ(`▿´)ᕗ Mock value in case something goes wrong with the connection to the sensors ᕙ(`▿´)ᕗ
-        }
-
-        return longLatValue;
-    }
-
-    public char windDir(String longOrLat, double value) {
-        char windDir;
-        if (longOrLat == "lat" && value >= 0) {
-            windDir = 'N';
-        } else if (longOrLat == "lat" && value < 0) {
-            windDir = 'S';
-        } else if (longOrLat == "long" && value >= 0) {
-            windDir = 'E';
-        } else if (longOrLat == "long" && value < 0) {
-            windDir = 'W';
-        } else {
-            windDir = 'X'; //ᕙ(`▿´)ᕗ In case something goes wrong, still initialisation of windDir ᕙ(`▿´)ᕗ
-        }
-        return windDir;
-    }
-
-    public String getLongOrLatitude(double gpsValue, String longOrLat) {
-        char windDir = windDir(longOrLat, gpsValue);
-        if (gpsValue < 0) {
-            gpsValue = gpsValue * -1;
-        }
-
-        /* ᕙ(`▿´)ᕗ DMS notation is both for longitude and latitude the full value (so no decimals), then get the
-        remaining value * 60 and the full value from that and repeat once more. Its the most commonly used formatting of GPS coordinates ᕙ(`▿´)ᕗ */
-        double gpsHours = Math.floor(gpsValue);
-        String hourStr = String.format("%.0f", gpsHours);
-        double gpsMin = Math.floor((gpsValue - gpsHours) * 60);
-        String minStr = String.format("%.0f", gpsMin);
-        double gpsSec = (gpsValue - gpsHours - (gpsMin / 60)) * 3600;
-        String secStr = String.format("%.3f", gpsSec);
-        String gps = windDir + hourStr + "° " + minStr + "' " + secStr + "\"";
-        return gps;
-    }
-
-    private void buildLocationSettingsRequest() {
-        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
-        builder.addLocationRequest(locationRequest);
-        mLocationSettingsRequest = builder.build();
-    }
-
 
 
 
