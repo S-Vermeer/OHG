@@ -288,7 +288,7 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
         double dist = calculateDistanceLongLatPoints(location.getLatitude(), targetLocation.getLatitude(), location.getLongitude(), targetLocation.getLongitude());
 
 
-        if(dist < 50 && navModel.getPreviousDistance() >= 50){
+        if(dist < 5 && navModel.getPreviousDistance() >= 5){
             if(navModel.getLocationsVisited() == 3 && navModel.getCompletedAdventure() != true){
                 complete.show();
                 navModel.setCompletedAdventure(true);

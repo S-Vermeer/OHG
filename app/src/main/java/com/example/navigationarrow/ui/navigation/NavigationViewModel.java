@@ -46,10 +46,17 @@ public class NavigationViewModel extends ViewModel {
 
         time = GregorianCalendar.getInstance().getTime();
 
+        /* home testing
         setLocationInfo(5.0120d,51.5777d,loc1);
         setLocationInfo(5.0855d,51.5162d,loc2);
         setLocationInfo(5.4271d,51.6476d,loc3);
-        setLocationInfo(5.4541d,51.4515d,loc4);
+        setLocationInfo(5.4541d,51.4515d,loc4);*/
+
+        setLocationInfo(5.318422d,51.587799d,loc1);
+        setLocationInfo(5.318744d,51.587757d,loc2);
+        setLocationInfo(5.318932d,51.587824d,loc3);
+        setLocationInfo(5.318684d,51.587799d,loc4);
+
 
         addLocationToCollection(loc1);
         addLocationToCollection(loc2);

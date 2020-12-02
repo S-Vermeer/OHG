@@ -61,9 +61,6 @@ public class NavigationFragment extends Fragment implements LocationListener {
         navigationViewModel = (NavigationViewModel) obtainFragmentViewModel(getActivity(), NavigationViewModel.class);
         View root = inflater.inflate(R.layout.fragment_navigation, container, false);
 
-//        locationManager= (LocationManager)getActivity().getSystemService(Context.LOCATION_SERVICE);
-//        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0, (android.location.LocationListener) this);
-
         Activity activity = (AdventureActivity) getActivity();
 
         currentTarget =  navigationViewModel.getCurrentTarget();
