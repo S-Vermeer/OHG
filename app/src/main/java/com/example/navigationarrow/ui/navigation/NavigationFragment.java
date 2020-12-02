@@ -1,10 +1,12 @@
 package com.example.navigationarrow.ui.navigation;
 
+import android.app.Activity;
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,7 +19,9 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.*;
+import com.example.navigationarrow.AdventureActivity;
 import com.example.navigationarrow.R;
+import com.google.android.gms.location.*;
 
 import java.lang.reflect.Array;
 import java.util.List;
@@ -27,9 +31,15 @@ import static androidx.core.content.ContextCompat.getSystemService;
 public class NavigationFragment extends Fragment implements LocationListener {
     private NavigationViewModel navigationViewModel;
 
+    private FusedLocationProviderClient fusedLocationClient;
+    private LocationRequest locationRequest;
+    private LocationCallback locationCallback;
+
+    private SettingsClient mSettingsClient;
+    private LocationSettingsRequest mLocationSettingsRequest;
+
     //TextView sensorTextView;
     ImageView arrowImageView;
-    LocationManager locationManager;
     TextView gpsTextView;
     Button reset;
     int currentLocationNumber;
@@ -42,8 +52,7 @@ public class NavigationFragment extends Fragment implements LocationListener {
         navigationViewModel = (NavigationViewModel) obtainFragmentViewModel(getActivity(), NavigationViewModel.class);
         View root = inflater.inflate(R.layout.fragment_navigation, container, false);
 
-        locationManager= (LocationManager)getActivity().getSystemService(Context.LOCATION_SERVICE);
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0, (android.location.LocationListener) this);
+
 
 
         //sensorTextView = root.findViewById(R.id.gpsText2);
@@ -61,23 +70,64 @@ public class NavigationFragment extends Fragment implements LocationListener {
         });
         Log.d("blahblah", String.valueOf(arrowImageView.getRotation()));
 
-        final Observer<String> dataObserver = new Observer<String>() {
-            @Override
-            public void onChanged(@Nullable final String newData) {
-                // Update the UI, in this case, a TextView.
-                //sensorTextView.setText(newData);
-            }
-        };
+
 
 
         navigationViewModel = ViewModelProviders.of(this).get(NavigationViewModel.class);
-        ViewModelProviders.of(getActivity()).get(NavigationViewModel.class).getOrientationValue().observe(this, dataObserver);
+        //ViewModelProviders.of(getActivity()).get(NavigationViewModel.class).getOrientationValue().observe(this, dataObserver);
 
         Log.d("blahblah2", String.valueOf(arrowImageView.getRotation()));
 
         currentLocationNumber = 1;
         lastLocationNumber = navigationViewModel.locations.size();
         currentTarget = navigationViewModel.locations.get(currentLocationNumber - 1);
+
+
+        Activity activity = (AdventureActivity) getActivity();
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(activity);
+        mSettingsClient = LocationServices.getSettingsClient(activity);
+
+
+        locationRequest = LocationRequest.create();
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        locationRequest.setInterval(20 * 1000);
+
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                super.onLocationResult(locationResult);
+
+                Location location = locationResult.getLastLocation();
+                if (locationResult == null) {
+                    return;
+                }
+                if (location != null) {
+                    locationChange(location);
+
+                }
+            }
+        };
+
+        buildLocationSettingsRequest();
+
+
+        mSettingsClient.checkLocationSettings(mLocationSettingsRequest)
+                .addOnSuccessListener(activity, locationSettingsResponse -> {
+
+                    //noinspection MissingPermission
+                    fusedLocationClient.requestLocationUpdates(locationRequest,
+                            locationCallback, Looper.myLooper());
+
+                });
+
+        fusedLocationClient.requestLocationUpdates(locationRequest,
+                locationCallback, Looper.myLooper());
+
+        fusedLocationClient.getLastLocation().addOnSuccessListener(activity, location -> {
+            if (location != null) {
+                locationChange(location);
+            }
+        });
 
 
         return root;
@@ -115,27 +165,25 @@ public class NavigationFragment extends Fragment implements LocationListener {
 
     @Override
     public void onLocationChanged(Location location) {
+        //locationChange(location)
+    }
 
+    private void locationChange(Location location){
         String lat = getLongOrLatitude(getGPSValue(location,"lat"), "lat");
         String lon = getLongOrLatitude(getGPSValue(location,"long"), "long");
+
         double distance = calculateDistanceLongLatPoints(location.getLatitude(),currentTarget.getLatitude(), location.getLongitude(), currentTarget.getLongitude());
         gpsTextView.setText(lat + "\n" + lon + "\n" + distance);
         /* ᕙ(`▿´)ᕗ if the location has changed, the text should be updated to the corresponding coordinates.
         Currently also features longitude and latitude for control purposes ᕙ(`▿´)ᕗ */
-        Location location2 = new Location("");
-        location2.setLatitude(51.5162d);
-        location2.setLongitude(5.0855d);
 
         float randomRot = (float) (Math.random() * 100);
         arrowImageView.setRotation(randomRot);
 
-        if(distance < 100){
-            //sensorTextView.setText("/");
-        }
-
         locationIndex.setText(currentLocationNumber + "/" + navigationViewModel.locations.size());
 
         //imageView.setRotation(directionNextCoordinate(location,location2));
+
     }
 
     public double getGPSValue(Location location, String longOrLat) {
@@ -206,6 +254,12 @@ public class NavigationFragment extends Fragment implements LocationListener {
         double haversine = (2 * radiusEarth) * arcsine;
 
         return haversine;
+    }
+
+    private void buildLocationSettingsRequest() {
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
+        builder.addLocationRequest(locationRequest);
+        mLocationSettingsRequest = builder.build();
     }
 
 

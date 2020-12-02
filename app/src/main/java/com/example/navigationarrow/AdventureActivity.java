@@ -16,6 +16,7 @@ import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -33,8 +34,12 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import com.example.navigationarrow.ui.navigation.NavigationViewModel;
+import com.google.android.gms.location.*;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.snackbar.Snackbar;
 
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.Math.floor;
@@ -44,6 +49,18 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
     /* ʕ•́ᴥ•̀ʔっ COMPASS VAR  ʕ•́ᴥ•̀ʔっ*/
 
     private NavigationViewModel navModel;
+
+    private FusedLocationProviderClient fusedLocationClient;
+    private LocationRequest locationRequest;
+    private LocationCallback locationCallback;
+    private Timer timer;
+
+    private Location targetLocation;
+    public int locationsVisited;
+
+    private SettingsClient mSettingsClient;
+    private LocationSettingsRequest mLocationSettingsRequest;
+
 
     //(•◡•)/ Sensor setup (•◡•)/
 
@@ -55,20 +72,20 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
     private float[] floatOrientation = new float[3];
     private float[] floatRotationMatrix = new float[9];
 
+
     /* ʕ•́ᴥ•̀ʔっ COMPASS VAR END ʕ•́ᴥ•̀ʔっ */
 
     /* ʕ•́ᴥ•̀ʔっ GPS VAR ʕ•́ᴥ•̀ʔっ */
-
-    protected LocationManager locationManager;
 
     /* ʕ•́ᴥ•̀ʔっ GPS VAR END ʕ•́ᴥ•̀ʔっ */
 
     //(•◡•)/ View variables setup (•◡•)/
     TextView txtLat;
-    TextView txtCheck;
-    //TextView txtSensor;
     TextView timeText;
 
+
+    private Snackbar sb;
+    private Snackbar complete;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +94,9 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
         super.onCreate(savedInstanceState);
         navModel = (NavigationViewModel) obtainViewModel(this, NavigationViewModel.class);
         DataBindingUtil.setContentView(this, R.layout.activity_adventure);
+
+        sb = Snackbar.make(findViewById(R.id.constraintLayoutAdventure), "Bestemming behaald", 3000);
+        complete = Snackbar.make(findViewById(R.id.constraintLayoutAdventure), "Op laatste bestemming gekomen", 15000);
 
         /* ʕ•́ᴥ•̀ʔっ COMPASS DISPLAY ʕ•́ᴥ•̀ʔっ */
 
@@ -124,11 +144,78 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
 
         /* ʕ•́ᴥ•̀ʔっ GPS COORDINATES ʕ•́ᴥ•̀ʔっ */
         txtLat = (TextView) findViewById(R.id.gpsText);
-        txtCheck = (TextView) findViewById(R.id.textView2);
         timeText = (TextView) findViewById(R.id.timeWalked);
 
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+
+        targetLocation = navModel.locations.get(locationsVisited);
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        mSettingsClient = LocationServices.getSettingsClient(this);
+
+
+
+        locationRequest = LocationRequest.create();
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        locationRequest.setInterval(5000);
+        locationRequest.setFastestInterval(5000);
+        timer = new Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                Long spentTime = navModel.getSpentTime();
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        timeText.setText(TimeString(spentTime));
+                    }
+                });
+
+            }
+        },0, 5 /*ELEPHANT interval*/);
+
+
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                super.onLocationResult(locationResult);
+
+                Location location = locationResult.getLastLocation();
+                if (locationResult == null) {
+                    return;
+                }
+                if (location != null) {
+                    locationChange(location);
+
+                }
+            }
+        };
+
+        buildLocationSettingsRequest();
+
+
+        mSettingsClient.checkLocationSettings(mLocationSettingsRequest)
+                .addOnSuccessListener(this, locationSettingsResponse -> {
+
+                    //noinspection MissingPermission
+                    fusedLocationClient.requestLocationUpdates(locationRequest,
+                            locationCallback, Looper.myLooper());
+
+                });
+
+        fusedLocationClient.requestLocationUpdates(locationRequest,
+                locationCallback, Looper.myLooper());
+
+        fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
+            if (location != null) {
+                locationChange(location);
+            }
+        });
+
+
+
+
+
         /* ʕ•́ᴥ•̀ʔっ GPS COORDINATES END ʕ•́ᴥ•̀ʔっ */
 
         BottomNavigationView navView = findViewById(R.id.nav_view_adventure);
@@ -198,28 +285,34 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
 
     @Override
     public void onLocationChanged(Location location) {
+        //locationChange(location);
 
+    }
+
+    public void locationChange(Location location){
         /* ᕙ(`▿´)ᕗ if the location has changed, the text should be updated to the corresponding coordinates.
         Currently also features longitude and latitude for control purposes ᕙ(`▿´)ᕗ */
 
-        double distance = calculateDistanceLongLatPoints(location.getLatitude(), location.getLatitude() + 0.5, location.getLongitude(), location.getLongitude() + 0.5);
-
         txtLat = (TextView) findViewById(R.id.gpsText);
-        //txtLat.setText("Latitude:" + getLongOrLatitude(getGPSValue(location, "lat"), "lat") + ", \n" + location.getLatitude() + " \n Longitude:" + getLongOrLatitude(getGPSValue(location, "long"), "long") + "\n " + location.getLongitude() + "\n " + distance);
 
-        Location location2 = new Location("");
-        location2.setLatitude(51.5162d);
-        location2.setLongitude(5.0855d);
 
-        double dist = calculateDistanceLongLatPoints(location.getLatitude(), location2.getLatitude(), location.getLongitude(), location2.getLongitude());
-        txtCheck.setText(location.toString());
-        if (dist < 100) {
-            txtCheck.setText("smol " + dist);
-        } else if (dist > 100) {
-            txtCheck.setText("big" + dist);
-        } else {
-            txtCheck.setText("aaaaah");
+        double dist = calculateDistanceLongLatPoints(location.getLatitude(), targetLocation.getLatitude(), location.getLongitude(), targetLocation.getLongitude());
+
+
+        if(dist < 5 && navModel.getPreviousDistance() >= 5){
+            if(navModel.getLocationsVisited() == 3 && navModel.getCompletedAdventure() != true){
+                complete.show();
+                navModel.setCompletedAdventure(true);
+                //storyModel.updateStoryPartIndex();
+            } else if(navModel.getCompletedAdventure() != true) {
+                sb.show();
+                navModel.setNewGoal();
+                targetLocation = navModel.getCurrentTarget();
+                locationsVisited = navModel.getLocationsVisited();
+                //storyModel.updateStoryPartIndex();
+            }
         }
+        navModel.setPreviousDistance(dist);
 
         long timeSpent = navModel.getSpentTime();
 
@@ -311,6 +404,12 @@ public class AdventureActivity extends AppCompatActivity implements LocationList
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
         Log.d("Latitude", "status");
+    }
+
+    private void buildLocationSettingsRequest() {
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
+        builder.addLocationRequest(locationRequest);
+        mLocationSettingsRequest = builder.build();
     }
 
 
