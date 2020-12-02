@@ -8,6 +8,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class NavigationViewModel extends ViewModel {
     private MutableLiveData<float[]> orientation;
@@ -20,6 +21,13 @@ public class NavigationViewModel extends ViewModel {
     private Location loc3 = new Location("");
 
     private Date time;
+    private long randomWalkingGoal;
+    private long activeWalkingTime;
+    private long timeLastCheck;
+    private int locationsVisited;
+
+    private boolean completedAdventure = false;
+
 
     public String sensorText;
 
@@ -34,6 +42,8 @@ public class NavigationViewModel extends ViewModel {
         Float f = (float) 0;
         rotationAngle.setValue(f);
         setReadingsText();
+
+        locationsVisited = 0;
 
         time = GregorianCalendar.getInstance().getTime();
 
@@ -58,6 +68,15 @@ public class NavigationViewModel extends ViewModel {
         return sensorText;
     }
 
+    public void setTimeLastCheck() {
+        Date now = GregorianCalendar.getInstance().getTime();
+        long updatedTime = now.getTime() - 0;
+        timeLastCheck = updatedTime;
+    }
+
+    public long getTimeLastCheck(){
+        return timeLastCheck;
+    }
 
     public void setReadingsText() {
         float[] currentOrientation = orientation.getValue();
@@ -107,5 +126,49 @@ public class NavigationViewModel extends ViewModel {
         return spentTime;
     }
 
+    public long getActiveWalkingTime(){
+        return activeWalkingTime;
+    }
 
+    public long setActiveWalkingTime(){
+        Date currentTime = GregorianCalendar.getInstance().getTime();
+        long active = currentTime.getTime() - timeLastCheck;
+        activeWalkingTime = activeWalkingTime + active;
+        return active;
+    }
+
+    public void setNewGoal(){
+        activeWalkingTime = 0;
+        setRandomWalkingTimeGoal();
+        updateLocationsVisited();
+    }
+
+    public void setRandomWalkingTimeGoal() {
+        Random r = new Random();
+        //int randomNum = 360000 + r.nextInt((600000 - 360000) + 1);
+        int randomNum = 60000 + r.nextInt((120000 - 60000) + 1);
+        long seconds = TimeUnit.SECONDS.toSeconds(randomNum);
+        randomWalkingGoal = seconds;
+    }
+
+    public long getRandomWalkingTimeGoal() {
+        return randomWalkingGoal;
+    }
+
+
+    public void updateLocationsVisited(){
+        locationsVisited = locationsVisited + 1;
+    }
+
+    public int getLocationsVisited(){
+        return locationsVisited;
+    }
+
+    public boolean getCompletedAdventure() {
+        return completedAdventure;
+    }
+
+    public void setCompletedAdventure(boolean value) {
+        completedAdventure = value;
+    }
 }
