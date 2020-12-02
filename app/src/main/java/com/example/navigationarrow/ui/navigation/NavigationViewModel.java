@@ -18,6 +18,7 @@ public class NavigationViewModel extends ViewModel {
     private Location loc1 = new Location("");
     private Location loc2 = new Location("");
     private Location loc3 = new Location("");
+    private Location loc4 = new Location("");
 
     private Date time;
     private double previousDistance = 0;
@@ -26,6 +27,12 @@ public class NavigationViewModel extends ViewModel {
 
     ArrayList<Location> locations = new ArrayList<>();
     private int currentLocationNumber;
+
+    private int locationsVisited;
+
+    private boolean completedAdventure = false;
+
+    private Location currentTarget;
 
 
     public NavigationViewModel() {
@@ -39,14 +46,17 @@ public class NavigationViewModel extends ViewModel {
 
         time = GregorianCalendar.getInstance().getTime();
 
-        setLocationInfo(5.0855d,51.4162d,loc1);
-        setLocationInfo(5.2855d,51.5162d,loc2);
-        setLocationInfo(5.0855d,51.6162d,loc3);
+        setLocationInfo(5.0120d,51.5777d,loc1);
+        setLocationInfo(5.0855d,51.5162d,loc2);
+        setLocationInfo(5.4271d,51.6476d,loc3);
+        setLocationInfo(5.4541d,51.4515d,loc4);
 
         addLocationToCollection(loc1);
         addLocationToCollection(loc2);
         addLocationToCollection(loc3);
+        addLocationToCollection(loc4);
         currentLocationNumber = 1;
+        setCurrentTarget(locations.get(currentLocationNumber - 1));
     }
 
     public String getSensorText() {
@@ -127,6 +137,35 @@ public class NavigationViewModel extends ViewModel {
 
     public double getPreviousDistance(){
         return previousDistance;
+    }
+
+    public void setNewGoal(){
+        updateLocationsVisited();
+        currentTarget = locations.get(locationsVisited);
+    }
+
+    public void updateLocationsVisited(){
+        locationsVisited = locationsVisited + 1;
+    }
+
+    public int getLocationsVisited(){
+        return locationsVisited;
+    }
+
+    public boolean getCompletedAdventure() {
+        return completedAdventure;
+    }
+
+    public void setCompletedAdventure(boolean value) {
+        completedAdventure = value;
+    }
+
+    public Location getCurrentTarget(){
+        return currentTarget;
+    }
+
+    public void setCurrentTarget(Location location){
+        currentTarget = location;
     }
 
 

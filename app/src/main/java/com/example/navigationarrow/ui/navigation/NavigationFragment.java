@@ -1,10 +1,12 @@
 package com.example.navigationarrow.ui.navigation;
 
+import android.app.Activity;
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Looper;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -18,11 +20,15 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.*;
+import com.example.navigationarrow.AdventureActivity;
 import com.example.navigationarrow.R;
+import com.google.android.gms.location.*;
 
 import java.lang.reflect.Array;
 import java.sql.Time;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static androidx.core.content.ContextCompat.getSystemService;
 
@@ -33,7 +39,16 @@ public class NavigationFragment extends Fragment implements LocationListener {
     TextView WText;
     TextView SText;
     TextView EText;
-    LocationManager locationManager;
+
+    //LocationManager locationManager;
+
+    private FusedLocationProviderClient fusedLocationClient;
+    private LocationRequest locationRequest;
+    private LocationCallback locationCallback;
+
+    private SettingsClient mSettingsClient;
+    private LocationSettingsRequest mLocationSettingsRequest;
+
     TextView gpsTextView;
     Button reset;
     int currentLocationNumber;
@@ -46,8 +61,61 @@ public class NavigationFragment extends Fragment implements LocationListener {
         navigationViewModel = (NavigationViewModel) obtainFragmentViewModel(getActivity(), NavigationViewModel.class);
         View root = inflater.inflate(R.layout.fragment_navigation, container, false);
 
-        locationManager= (LocationManager)getActivity().getSystemService(Context.LOCATION_SERVICE);
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0, (android.location.LocationListener) this);
+//        locationManager= (LocationManager)getActivity().getSystemService(Context.LOCATION_SERVICE);
+//        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0, (android.location.LocationListener) this);
+
+        Activity activity = (AdventureActivity) getActivity();
+
+        currentTarget =  navigationViewModel.getCurrentTarget();
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(activity);
+        mSettingsClient = LocationServices.getSettingsClient(activity);
+
+
+
+        locationRequest = LocationRequest.create();
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        locationRequest.setInterval(5000);
+        locationRequest.setFastestInterval(5000);
+
+
+
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                super.onLocationResult(locationResult);
+
+                Location location = locationResult.getLastLocation();
+                if (locationResult == null) {
+                    return;
+                }
+                if (location != null) {
+                    locationChange(location);
+
+                }
+            }
+        };
+
+        buildLocationSettingsRequest();
+
+
+        mSettingsClient.checkLocationSettings(mLocationSettingsRequest)
+                .addOnSuccessListener(activity, locationSettingsResponse -> {
+
+                    //noinspection MissingPermission
+                    fusedLocationClient.requestLocationUpdates(locationRequest,
+                            locationCallback, Looper.myLooper());
+
+                });
+
+        fusedLocationClient.requestLocationUpdates(locationRequest,
+                locationCallback, Looper.myLooper());
+
+        fusedLocationClient.getLastLocation().addOnSuccessListener(activity, location -> {
+            if (location != null) {
+                locationChange(location);
+            }
+        });
+
 
 
         NText = root.findViewById(R.id.N);
@@ -80,7 +148,6 @@ public class NavigationFragment extends Fragment implements LocationListener {
 
         currentLocationNumber = navigationViewModel.getCurrentLocationNumber();
         lastLocationNumber = navigationViewModel.locations.size();
-        currentTarget = navigationViewModel.locations.get(currentLocationNumber - 1);
 
         return root;
     }
@@ -118,39 +185,39 @@ public class NavigationFragment extends Fragment implements LocationListener {
 
     @Override
     public void onLocationChanged(Location location) {
+        //locationChange(location)
 
+    }
+
+    private void locationChange(Location location){
         String lat = getLongOrLatitude(getGPSValue(location,"lat"), "lat");
         String lon = getLongOrLatitude(getGPSValue(location,"long"), "long");
         double distance = calculateDistanceLongLatPoints(location.getLatitude(),currentTarget.getLatitude(), location.getLongitude(), currentTarget.getLongitude());
-        gpsTextView.setText(lat + "\n" + lon + "\n" + distance);
+        gpsTextView.setText(lat + "\n" + lon + "\n" + String.format("%.2f", distance));
         /* ᕙ(`▿´)ᕗ if the location has changed, the text should be updated to the corresponding coordinates.
         Currently also features longitude and latitude for control purposes ᕙ(`▿´)ᕗ */
-        Location location2 = new Location("");
-        location2.setLatitude(51.5162d);
-        location2.setLongitude(5.0855d);
 
         currentLocationNumber = navigationViewModel.getCurrentLocationNumber();
-        currentTarget = navigationViewModel.locations.get(currentLocationNumber - 1);
-        locationIndex.setText(currentLocationNumber + "/" + navigationViewModel.locations.size());
+        currentTarget = navigationViewModel.getCurrentTarget();
+        AdventureActivity activity = (AdventureActivity) getActivity();
+        int locationsVisited = 10;
+        if(activity != null) {
+            locationsVisited = activity.locationsVisited;
+        }
+
+        locationIndex.setText(locationsVisited + 1 + "/" + navigationViewModel.locations.size());
+        currentTarget = navigationViewModel.locations.get(locationsVisited);
 
 
         NText.setTextSize(TypedValue.COMPLEX_UNIT_SP,20);
         EText.setTextSize(TypedValue.COMPLEX_UNIT_SP,20);
         WText.setTextSize(TypedValue.COMPLEX_UNIT_SP,20);
         SText.setTextSize(TypedValue.COMPLEX_UNIT_SP,20);
-            TextView x = selectTextView(location2.getLatitude() - location.getLatitude(), "lat");
-            x.setTextSize(TypedValue.COMPLEX_UNIT_SP, 60);
-        TextView y = selectTextView(location2.getLongitude() - location.getLongitude(), "long");
-        y.setTextSize(TypedValue.COMPLEX_UNIT_SP, 60);
+        TextView x = selectTextView(currentTarget.getLatitude() - location.getLatitude(), "lat");
+        x.setTextSize(TypedValue.COMPLEX_UNIT_SP, 50);
+        TextView y = selectTextView(currentTarget.getLongitude() - location.getLongitude(), "long");
+        y.setTextSize(TypedValue.COMPLEX_UNIT_SP, 50);
 
-
-
-        //         selectTextView(location2.getLatitude() - location.getLatitude(), "lat").setTextSize(TypedValue.COMPLEX_UNIT_SP,60);
-
-  /*      if(selectTextView(location2.getLongitude() - location.getLongitude(), "long") != null) {
-            selectTextView(location2.getLongitude() - location.getLongitude(), "long").setTextSize(TypedValue.COMPLEX_UNIT_SP,60);
-        }
-*/
 
     }
 
@@ -236,6 +303,12 @@ public class NavigationFragment extends Fragment implements LocationListener {
         double haversine = (2 * radiusEarth) * arcsine;
 
         return haversine;
+    }
+
+    private void buildLocationSettingsRequest() {
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
+        builder.addLocationRequest(locationRequest);
+        mLocationSettingsRequest = builder.build();
     }
 
 
