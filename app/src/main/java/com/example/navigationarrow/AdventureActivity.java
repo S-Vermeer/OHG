@@ -91,8 +91,6 @@ public class AdventureActivity extends AppCompatActivity /*implements LocationLi
 
     //(•◡•)/ View variables setup (•◡•)/
     TextView txtLat;
-    TextView txtCheck;
-    //TextView txtSensor;
     TextView timeText;
     TextView distanceWalked;
 
@@ -160,7 +158,6 @@ public class AdventureActivity extends AppCompatActivity /*implements LocationLi
 
         /* ʕ•́ᴥ•̀ʔっ GPS COORDINATES ʕ•́ᴥ•̀ʔっ */
         txtLat = (TextView) findViewById(R.id.gpsText);
-        txtCheck = (TextView) findViewById(R.id.textView2);
         timeText = (TextView) findViewById(R.id.timeWalked);
         distanceWalked = (TextView) findViewById(R.id.distanceWalked);
 
@@ -251,17 +248,6 @@ public class AdventureActivity extends AppCompatActivity /*implements LocationLi
         location2.setLatitude(51.5162d);
         location2.setLongitude(5.0855d);
 
-        double dist = calculateDistanceLongLatPoints(location.getLatitude(), location2.getLatitude(), location.getLongitude(), location2.getLongitude());
-        txtCheck.setText(location.toString());
-        if (dist < 100) {
-            txtCheck.setText("smol " + dist);
-        } else if (dist > 100) {
-            txtCheck.setText("big" + dist);
-        } else {
-            txtCheck.setText("aaaaah");
-        }
-
-
         long timeSpent = navModel.getSpentTime();
 
         if(acceleroOrientation[0] != 0){
@@ -287,33 +273,6 @@ public class AdventureActivity extends AppCompatActivity /*implements LocationLi
 
     /* ʕ•́ᴥ•̀ʔっ NAVIGATION TO NEXT COORDINATE ʕ•́ᴥ•̀ʔっ */
 
-    /* ᕙ(`▿´)ᕗ HAVERSINE FORMULE:
-    distance between two coordinates = 2 * radiusEarth * (arcsin ( root of (sine^2(difference between latitudes / 2)
-    + cosine(latitude 1) * cosine(latitude 2) * sine^2(difference between longitudes / 2))))   ᕙ(`▿´)ᕗ */
-
-    //(•◡•)/ distance (meters) between two coordinates (give long and latitude of two points)  (•◡•)/
-    public double calculateDistanceLongLatPoints(double lat1, double lat2, double long1, double long2) {
-        double radiusEarth = 6371e3;
-
-        double radLat1 = lat1 * Math.PI / 180;
-        double radLat2 = lat2 * Math.PI / 180;
-        double radLong1 = long1 * Math.PI / 180;
-        double radLong2 = long2 * Math.PI / 180;
-
-
-        double sineSquaredDifLatitudes = Math.pow(Math.sin((radLat2 - radLat1) / 2), 2);
-        double cosineLat1 = Math.cos(radLat1);
-        double cosineLat2 = Math.cos(radLat2);
-        double sineSquaredDifLongitudes = Math.pow(Math.sin((radLong2 - radLong1) / 2), 2);
-
-        double squareRoot = Math.sqrt(sineSquaredDifLatitudes + (cosineLat1 * cosineLat2 * sineSquaredDifLongitudes));
-        double arcsine = Math.asin(squareRoot);
-
-        double haversine = (2 * radiusEarth) * arcsine;
-
-        return haversine;
-    }
-
     public String TimeString(long timeSpent){
         long totalSeconds = TimeUnit.MILLISECONDS.toSeconds(timeSpent);
         double minutes = floor(TimeUnit.MILLISECONDS.toMinutes(timeSpent));
@@ -330,10 +289,6 @@ public class AdventureActivity extends AppCompatActivity /*implements LocationLi
         String time = String.format("%.0f", minutes) + ":" + addedZero + String.format("%.0f", currentSeconds);
         return time;
     }
-
-
-
-
 
 
     /* ʕ•́ᴥ•̀ʔっ NAVIGATION TO NEXT COORDINATE END ʕ•́ᴥ•̀ʔっ */
