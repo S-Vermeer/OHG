@@ -62,6 +62,11 @@ public class AdventureActivity extends AppCompatActivity /*implements LocationLi
     private LocationCallback locationCallback;
     private Timer timer;
 
+    private Location currentTarget;
+    private Location currentLocation;
+
+    private double distanceStart;
+
     private SettingsClient mSettingsClient;
     private LocationSettingsRequest mLocationSettingsRequest;
 
@@ -123,6 +128,8 @@ public class AdventureActivity extends AppCompatActivity /*implements LocationLi
         sensorRotationVector = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
         acceleroMeter = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
+        currentTarget = navModel.getCurrentTarget();
+
         //txtSensor = (TextView) findViewById(R.id.gpsText2);
 
         SensorEventListener sensorEventListenerRotationVector = new SensorEventListener() {
@@ -136,7 +143,6 @@ public class AdventureActivity extends AppCompatActivity /*implements LocationLi
             }
         };
 
-        navModel.setRandomWalkingTimeGoal();
 
         sensorManager.registerListener(sensorEventListenerRotationVector, sensorRotationVector, SensorManager.SENSOR_DELAY_NORMAL);
 
@@ -160,6 +166,9 @@ public class AdventureActivity extends AppCompatActivity /*implements LocationLi
         txtLat = (TextView) findViewById(R.id.gpsText);
         timeText = (TextView) findViewById(R.id.timeWalked);
         distanceWalked = (TextView) findViewById(R.id.distanceWalked);
+
+        currentLocation = new Location("");
+
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         mSettingsClient = LocationServices.getSettingsClient(this);
@@ -193,6 +202,8 @@ public class AdventureActivity extends AppCompatActivity /*implements LocationLi
                         super.onLocationResult(locationResult);
 
                         Location location = locationResult.getLastLocation();
+                        currentLocation = location;
+                        distanceStart = calculateDistanceLongLatPoints(location.getLatitude(),currentTarget.getLatitude(),location.getLongitude(),currentTarget.getLongitude());
                         if (locationResult == null) {
                             return;
                         }
@@ -225,6 +236,8 @@ public class AdventureActivity extends AppCompatActivity /*implements LocationLi
         });
 
 
+
+
         /* ʕ•́ᴥ•̀ʔっ GPS COORDINATES END ʕ•́ᴥ•̀ʔっ */
 
         BottomNavigationView navView = findViewById(R.id.nav_view_adventure);
@@ -242,19 +255,14 @@ public class AdventureActivity extends AppCompatActivity /*implements LocationLi
         /* ᕙ(`▿´)ᕗ if the location has changed, the text should be updated to the corresponding coordinates.
         Currently also features longitude and latitude for control purposes ᕙ(`▿´)ᕗ */
 
+        double dist = calculateDistanceLongLatPoints(location.getLatitude(), currentTarget.getLatitude(), location.getLongitude(), currentTarget.getLongitude());
         txtLat = (TextView) findViewById(R.id.gpsText);
 
-        Location location2 = new Location("");
-        location2.setLatitude(51.5162d);
-        location2.setLongitude(5.0855d);
+        currentLocation = location;
 
         long timeSpent = navModel.getSpentTime();
 
-        if(acceleroOrientation[0] != 0){
-            navModel.setActiveWalkingTime();
-        }
-
-        if(navModel.getActiveWalkingTime() >= navModel.getRandomWalkingTimeGoal() && navModel.getActiveWalkingTime() <= navModel.getRandomWalkingTimeGoal() + 6000){
+        if(dist < 5 && navModel.getPreviousDistance() > 5){
             if(navModel.getLocationsVisited() == 3 && navModel.getCompletedAdventure() != true){
                 complete.show();
                 navModel.setCompletedAdventure(true);
@@ -268,6 +276,8 @@ public class AdventureActivity extends AppCompatActivity /*implements LocationLi
         }
         navModel.setTimeLastCheck();
         timeText.setText(TimeString(timeSpent));
+
+
     }
 
 
@@ -290,6 +300,33 @@ public class AdventureActivity extends AppCompatActivity /*implements LocationLi
         return time;
     }
 
+    /* ᕙ(`▿´)ᕗ HAVERSINE FORMULE:
+    distance between two coordinates = 2 * radiusEarth * (arcsin ( root of (sine^2(difference between latitudes / 2)
+    + cosine(latitude 1) * cosine(latitude 2) * sine^2(difference between longitudes / 2))))   ᕙ(`▿´)ᕗ */
+
+    //(•◡•)/ distance (meters) between two coordinates (give long and latitude of two points)  (•◡•)/
+    public double calculateDistanceLongLatPoints(double lat1, double lat2, double long1, double long2) {
+        double radiusEarth = 6371e3;
+
+        double radLat1 = lat1 * Math.PI / 180;
+        double radLat2 = lat2 * Math.PI / 180;
+        double radLong1 = long1 * Math.PI / 180;
+        double radLong2 = long2 * Math.PI / 180;
+
+
+        double sineSquaredDifLatitudes = Math.pow(Math.sin((radLat2 - radLat1) / 2), 2);
+        double cosineLat1 = Math.cos(radLat1);
+        double cosineLat2 = Math.cos(radLat2);
+        double sineSquaredDifLongitudes = Math.pow(Math.sin((radLong2 - radLong1) / 2), 2);
+
+        double squareRoot = Math.sqrt(sineSquaredDifLatitudes + (cosineLat1 * cosineLat2 * sineSquaredDifLongitudes));
+        double arcsine = Math.asin(squareRoot);
+
+        double haversine = (2 * radiusEarth) * arcsine;
+
+        return haversine;
+    }
+
 
     /* ʕ•́ᴥ•̀ʔっ NAVIGATION TO NEXT COORDINATE END ʕ•́ᴥ•̀ʔっ */
 
@@ -299,9 +336,15 @@ public class AdventureActivity extends AppCompatActivity /*implements LocationLi
     }
 
     public int getPercentageWalkingDone(){
-        long goal = navModel.getRandomWalkingTimeGoal();
-        long walked = navModel.getActiveWalkingTime();
-        int percentage = Math.toIntExact(walked * 100 / goal);
+        double goal = distanceStart;
+        double toWalk = calculateDistanceLongLatPoints(currentLocation.getLatitude(), currentTarget.getLatitude(), currentLocation.getLongitude(), currentTarget.getLongitude());
+        double walked;
+        if(toWalk < distanceStart){
+            walked = distanceStart - toWalk;
+        } else {
+            walked = distanceStart;
+        }
+        int percentage = (int) (walked * 100 / goal);
         return percentage;
     }
 

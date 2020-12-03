@@ -2,6 +2,7 @@ package com.example.navigationarrow.ui.navigation;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -147,7 +148,8 @@ public class NavigationFragment extends Fragment {
     public void locationChange(Location location){
         String lat = getLongOrLatitude(getGPSValue(location,"lat"), "lat");
         String lon = getLongOrLatitude(getGPSValue(location,"long"), "long");
-        gpsTextView.setText(lat + "\n" + lon);
+        double dist = calculateDistanceLongLatPoints(location.getLatitude(), currentTarget.getLatitude(), location.getLongitude(), currentTarget.getLongitude());
+        gpsTextView.setText(lat + "\n" + lon + "\n" + String.format("%.2f", dist));
         /* ᕙ(`▿´)ᕗ if the location has changed, the text should be updated to the corresponding coordinates.
         Currently also features longitude and latitude for control purposes ᕙ(`▿´)ᕗ */
 
@@ -172,6 +174,33 @@ public class NavigationFragment extends Fragment {
 
         //imageView.setRotation(directionNextCoordinate(location,location2));
 
+    }
+
+        /* ᕙ(`▿´)ᕗ HAVERSINE FORMULE:
+    distance between two coordinates = 2 * radiusEarth * (arcsin ( root of (sine^2(difference between latitudes / 2)
+    + cosine(latitude 1) * cosine(latitude 2) * sine^2(difference between longitudes / 2))))   ᕙ(`▿´)ᕗ */
+
+    //(•◡•)/ distance (meters) between two coordinates (give long and latitude of two points)  (•◡•)/
+    public double calculateDistanceLongLatPoints(double lat1, double lat2, double long1, double long2) {
+        double radiusEarth = 6371e3;
+
+        double radLat1 = lat1 * Math.PI / 180;
+        double radLat2 = lat2 * Math.PI / 180;
+        double radLong1 = long1 * Math.PI / 180;
+        double radLong2 = long2 * Math.PI / 180;
+
+
+        double sineSquaredDifLatitudes = Math.pow(Math.sin((radLat2 - radLat1) / 2), 2);
+        double cosineLat1 = Math.cos(radLat1);
+        double cosineLat2 = Math.cos(radLat2);
+        double sineSquaredDifLongitudes = Math.pow(Math.sin((radLong2 - radLong1) / 2), 2);
+
+        double squareRoot = Math.sqrt(sineSquaredDifLatitudes + (cosineLat1 * cosineLat2 * sineSquaredDifLongitudes));
+        double arcsine = Math.asin(squareRoot);
+
+        double haversine = (2 * radiusEarth) * arcsine;
+
+        return haversine;
     }
 
     public double getGPSValue(Location location, String longOrLat) {
@@ -227,6 +256,7 @@ public class NavigationFragment extends Fragment {
         builder.addLocationRequest(locationRequest);
         mLocationSettingsRequest = builder.build();
     }
+
 
 
 

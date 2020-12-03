@@ -19,12 +19,14 @@ public class NavigationViewModel extends ViewModel {
     private Location loc1 = new Location("");
     private Location loc2 = new Location("");
     private Location loc3 = new Location("");
+    private Location loc4 = new Location("");
 
     private Date time;
-    private long randomWalkingGoal;
-    private long activeWalkingTime;
     private long timeLastCheck;
     private int locationsVisited;
+    private Location currentTarget;
+
+    private double previousDistance;
 
     private boolean completedAdventure = false;
 
@@ -47,16 +49,17 @@ public class NavigationViewModel extends ViewModel {
 
         time = GregorianCalendar.getInstance().getTime();
 
+        setLocationInfo(5.318422d,51.587799d,loc1);
+        setLocationInfo(5.318744d,51.587757d,loc2);
+        setLocationInfo(5.318932d,51.587824d,loc3);
+        setLocationInfo(5.318684d,51.587799d,loc4);
 
-        loc1.setLongitude(5.0855d);
-        loc1.setLatitude(51.4162d);
-        loc2.setLongitude(5.1855d);
-        loc2.setLatitude(51.5162d);
-        loc3.setLongitude(5.2855d);
-        loc3.setLongitude(51.6162d);
         addLocationToCollection(loc1);
         addLocationToCollection(loc2);
         addLocationToCollection(loc3);
+        addLocationToCollection(loc4);
+
+        currentTarget = locations.get(locationsVisited);
     }
 
     public String getSensorText() {
@@ -66,6 +69,11 @@ public class NavigationViewModel extends ViewModel {
     public String setSensorText(String text) {;
         sensorText = text;
         return sensorText;
+    }
+
+    public void setLocationInfo(double lon, double lat, Location loc){
+        loc.setLongitude(lon);
+        loc.setLatitude(lat);
     }
 
     public void setTimeLastCheck() {
@@ -126,35 +134,11 @@ public class NavigationViewModel extends ViewModel {
         return spentTime;
     }
 
-    public long getActiveWalkingTime(){
-        return activeWalkingTime;
-    }
-
-    public long setActiveWalkingTime(){
-        Date currentTime = GregorianCalendar.getInstance().getTime();
-        long active = currentTime.getTime() - timeLastCheck;
-        activeWalkingTime = activeWalkingTime + active;
-        return active;
-    }
 
     public void setNewGoal(){
-        activeWalkingTime = 0;
-        setRandomWalkingTimeGoal();
         updateLocationsVisited();
+        currentTarget = locations.get(locationsVisited);
     }
-
-    public void setRandomWalkingTimeGoal() {
-        Random r = new Random();
-        //int randomNum = 360000 + r.nextInt((600000 - 360000) + 1);
-        int randomNum = 60000 + r.nextInt((120000 - 60000) + 1);
-        long seconds = TimeUnit.SECONDS.toSeconds(randomNum);
-        randomWalkingGoal = seconds;
-    }
-
-    public long getRandomWalkingTimeGoal() {
-        return randomWalkingGoal;
-    }
-
 
     public void updateLocationsVisited(){
         locationsVisited = locationsVisited + 1;
@@ -171,4 +155,21 @@ public class NavigationViewModel extends ViewModel {
     public void setCompletedAdventure(boolean value) {
         completedAdventure = value;
     }
+
+    public Location getCurrentTarget(){
+        return currentTarget;
+    }
+
+    public void setCurrentTarget(Location location){
+        currentTarget = location;
+    }
+
+    public void setPreviousDistance(double currentDistance){
+        previousDistance = currentDistance;
+    }
+
+    public double getPreviousDistance(){
+        return previousDistance;
+    }
+
 }
