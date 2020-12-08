@@ -1,10 +1,7 @@
 package com.example.navigationarrow.ui.navigation;
 
 import android.app.Activity;
-import android.content.Context;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
@@ -15,7 +12,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.*;
@@ -23,14 +19,10 @@ import com.example.navigationarrow.AdventureActivity;
 import com.example.navigationarrow.R;
 import com.google.android.gms.location.*;
 
-import java.lang.reflect.Array;
-import java.util.List;
-
-import static androidx.core.content.ContextCompat.getSystemService;
-
-public class NavigationFragment extends Fragment implements LocationListener {
+public class NavigationFragment extends Fragment {
     private NavigationViewModel navigationViewModel;
 
+    /* ʕ•́ᴥ•̀ʔっ LOCATION VAR  ʕ•́ᴥ•̀ʔっ*/
     private FusedLocationProviderClient fusedLocationClient;
     private LocationRequest locationRequest;
     private LocationCallback locationCallback;
@@ -38,14 +30,18 @@ public class NavigationFragment extends Fragment implements LocationListener {
     private SettingsClient mSettingsClient;
     private LocationSettingsRequest mLocationSettingsRequest;
 
-    //TextView sensorTextView;
-    ImageView arrowImageView;
-    TextView gpsTextView;
-    Button reset;
     int currentLocationNumber;
     int lastLocationNumber;
     Location currentTarget;
+
+    /* ʕ•́ᴥ•̀ʔっ LOCATION VAR END ʕ•́ᴥ•̀ʔっ*/
+
+    /* ʕ•́ᴥ•̀ʔっ INTERFACE VAR  ʕ•́ᴥ•̀ʔっ*/
+    ImageView arrowImageView;
+    TextView gpsTextView;
+    Button reset;
     TextView locationIndex;
+    /* ʕ•́ᴥ•̀ʔっ INTERFACE VAR END  ʕ•́ᴥ•̀ʔっ*/
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -53,40 +49,31 @@ public class NavigationFragment extends Fragment implements LocationListener {
         View root = inflater.inflate(R.layout.fragment_navigation, container, false);
 
 
+        /* ʕ•́ᴥ•̀ʔっ NAVIGATION INFO DISPLAY ʕ•́ᴥ•̀ʔっ */
 
-
-        //sensorTextView = root.findViewById(R.id.gpsText2);
+        //(•◡•)/ Assign corresponding values (•◡•)/
         arrowImageView = root.findViewById(R.id.imageView);
         gpsTextView = root.findViewById(R.id.gpsText);
         arrowImageView.setRotation(80);
         reset = root.findViewById(R.id.button2);
         locationIndex = root.findViewById(R.id.gpsText2);
 
-        reset.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                resetButton(v);
-            }
-        });
-        Log.d("blahblah", String.valueOf(arrowImageView.getRotation()));
 
-
-
+        //(•◡•)/ Assign Listeners (•◡•)/
+        reset.setOnClickListener(v -> resetButton(v));
 
         navigationViewModel = ViewModelProviders.of(this).get(NavigationViewModel.class);
-        //ViewModelProviders.of(getActivity()).get(NavigationViewModel.class).getOrientationValue().observe(this, dataObserver);
 
-        Log.d("blahblah2", String.valueOf(arrowImageView.getRotation()));
-
+        //(•◡•)/ See how far you are on the route, how many checkpoints to go (•◡•)/
         currentLocationNumber = 1;
         lastLocationNumber = navigationViewModel.locations.size();
         currentTarget = navigationViewModel.locations.get(currentLocationNumber - 1);
 
 
+        //(•◡•)/ Location retrieval setup (•◡•)/
         Activity activity = (AdventureActivity) getActivity();
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(activity);
         mSettingsClient = LocationServices.getSettingsClient(activity);
-
 
         locationRequest = LocationRequest.create();
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
@@ -134,39 +121,15 @@ public class NavigationFragment extends Fragment implements LocationListener {
     }
 
     public void resetButton(View view){
-        arrowImageView.setRotation(100);
+        Log.d("Rotation", String.valueOf(arrowImageView.getRotation()));
     }
 
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        // Create the observer which updates the UI.
-
-        //navigationViewModel.getOrientationValue().observe(getViewLifecycleOwner(), dataObserver);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        navigationViewModel.getRotationAngle().observe(getViewLifecycleOwner(), new Observer<Float>() {
-            @Override
-            public void onChanged(Float aFloat) {
-                arrowImageView.setRotation(aFloat);
-            }
-        });
-    }
 
     protected final <T extends ViewModel> ViewModel obtainFragmentViewModel(@NonNull FragmentActivity fragment, @NonNull Class<T> modelClass) {
         ViewModelProvider.AndroidViewModelFactory factory = ViewModelProvider.AndroidViewModelFactory.getInstance(fragment.getApplication());
         return new ViewModelProvider(fragment, factory).get(modelClass);
     }
 
-    @Override
-    public void onLocationChanged(Location location) {
-        //locationChange(location)
-    }
 
     private void locationChange(Location location){
         String lat = getLongOrLatitude(getGPSValue(location,"lat"), "lat");
