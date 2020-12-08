@@ -10,7 +10,7 @@ import androidx.lifecycle.ViewModel;
 import java.util.*;
 
 public class NavigationViewModel extends ViewModel {
-    private MutableLiveData<float[]> orientation;
+    private float[] orientation;
     private MutableLiveData<Float> rotationAngle;
 
     private int locationsVisited;
@@ -29,9 +29,8 @@ public class NavigationViewModel extends ViewModel {
 
 
     public NavigationViewModel() {
-        orientation = new MutableLiveData<>();
         float[] oriVal = new float[]{0,0,0};
-        orientation.setValue(oriVal);
+        orientation = oriVal;
         rotationAngle = new MutableLiveData<>();
         Float f = (float) 0;
         rotationAngle.setValue(f);
@@ -49,10 +48,17 @@ public class NavigationViewModel extends ViewModel {
         addLocationToCollection(loc4);
     }
 
+    public void setLocations(ArrayList<Location> locs){
+        locations = locs;
+    }
 
 
     public void setOrientation(float[] value){
-        orientation.setValue(value);
+        orientation = value;
+    }
+
+    public float getAzimuth(){
+        return orientation[0];
     }
 
     public void setLocationInfo(double lon, double lat, Location loc){

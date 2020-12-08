@@ -1,6 +1,7 @@
 package com.example.navigationarrow.ui.navigation;
 
 import android.app.Activity;
+import android.hardware.GeomagneticField;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
@@ -19,8 +20,11 @@ import com.example.navigationarrow.AdventureActivity;
 import com.example.navigationarrow.R;
 import com.google.android.gms.location.*;
 
+import java.util.ArrayList;
+
 public class NavigationFragment extends Fragment {
     private NavigationViewModel navigationViewModel;
+    Activity activity;
 
     /* ʕ•́ᴥ•̀ʔっ LOCATION VAR  ʕ•́ᴥ•̀ʔっ*/
     private FusedLocationProviderClient fusedLocationClient;
@@ -48,6 +52,7 @@ public class NavigationFragment extends Fragment {
         navigationViewModel = (NavigationViewModel) obtainFragmentViewModel(getActivity(), NavigationViewModel.class);
         View root = inflater.inflate(R.layout.fragment_navigation, container, false);
 
+        activity = (AdventureActivity) getActivity();
 
         /* ʕ•́ᴥ•̀ʔっ NAVIGATION INFO DISPLAY ʕ•́ᴥ•̀ʔっ */
 
@@ -63,6 +68,8 @@ public class NavigationFragment extends Fragment {
         reset.setOnClickListener(v -> resetButton(v));
 
         navigationViewModel = ViewModelProviders.of(this).get(NavigationViewModel.class);
+        ArrayList<Location> locs = activity.getIntent().getParcelableArrayListExtra("EXTRA_LOCATIONS");
+        navigationViewModel.setLocations(locs);
 
         //(•◡•)/ See how far you are on the route, how many checkpoints to go (•◡•)/
         currentLocationNumber = 1;
@@ -71,7 +78,6 @@ public class NavigationFragment extends Fragment {
 
 
         //(•◡•)/ Location retrieval setup (•◡•)/
-        Activity activity = (AdventureActivity) getActivity();
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(activity);
         mSettingsClient = LocationServices.getSettingsClient(activity);
 
@@ -140,12 +146,10 @@ public class NavigationFragment extends Fragment {
         /* ᕙ(`▿´)ᕗ if the location has changed, the text should be updated to the corresponding coordinates.
         Currently also features longitude and latitude for control purposes ᕙ(`▿´)ᕗ */
 
-        float randomRot = (float) (Math.random() * 100);
-        arrowImageView.setRotation(randomRot);
+        arrowImageView.setRotation(directionNextCoordinate(location, currentTarget));
 
         locationIndex.setText(currentLocationNumber + "/" + navigationViewModel.locations.size());
 
-        //imageView.setRotation(directionNextCoordinate(location,location2));
 
     }
 
@@ -225,5 +229,21 @@ public class NavigationFragment extends Fragment {
         mLocationSettingsRequest = builder.build();
     }
 
+    public float directionNextCoordinate(Location location1, Location location2) {
+        float azimuth = navigationViewModel.getAzimuth();
+        azimuth = (float) Math.toDegrees(azimuth);
+        GeomagneticField geoField = new GeomagneticField(
+                (float) location1.getLatitude(),
+                (float) location1.getLongitude(),
+                (float) location1.getAltitude(),
+                System.currentTimeMillis());
+
+        azimuth += geoField.getDeclination(); // converts magnetic north to true north
+        float bearingTo = location1.bearingTo(location2);
+        float turnAngle = azimuth - bearingTo;
+        return turnAngle;
+    }
+
 
 }
+

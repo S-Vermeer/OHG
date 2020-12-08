@@ -5,10 +5,7 @@
 
 package com.example.navigationarrow;
 
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
+import android.hardware.*;
 import android.location.Location;
 import android.os.Looper;
 import android.widget.TextView;
@@ -27,6 +24,7 @@ import com.google.android.gms.location.*;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
@@ -87,6 +85,8 @@ public class AdventureActivity extends AppCompatActivity {
         //ᕙ(`▿´)ᕗ Mandatory in onCreate ᕙ(`▿´)ᕗ
         super.onCreate(savedInstanceState);
         navModel = (NavigationViewModel) obtainViewModel(this, NavigationViewModel.class);
+        ArrayList<Location> locs = getIntent().getParcelableArrayListExtra("EXTRA_LOCATIONS");
+        navModel.setLocations(locs);
         DataBindingUtil.setContentView(this, R.layout.activity_adventure);
 
         //(•◡•)/ Notification Bar variables assignment (•◡•)/
@@ -271,17 +271,7 @@ public class AdventureActivity extends AppCompatActivity {
     }
 
     //(•◡•)/ direction of an arrow (degrees to turn) to the next coordinate  (•◡•)/
-    public float directionNextCoordinate(Location location1, Location location2) {
-        float direction = location1.bearingTo(location2);
 
-        float phoneOrientation = (float) (-floatOrientation[0] * 180 / 3.14159);
-        float turnAngle = direction - phoneOrientation;
-
-        return turnAngle;
-
-        //≧◉◡◉≦ TOFIX Enhance turnangle so phone rotation + bearing vs true north next location = direction arrow  ≧◉◡◉≦
-
-    }
 
     public String TimeString(long timeSpent){
         long totalSeconds = TimeUnit.MILLISECONDS.toSeconds(timeSpent);
@@ -299,10 +289,6 @@ public class AdventureActivity extends AppCompatActivity {
         String time = String.format("%.0f", minutes) + ":" + addedZero + String.format("%.0f", currentSeconds);
         return time;
     }
-
-
-
-
 
 
     /* ʕ•́ᴥ•̀ʔっ NAVIGATION TO NEXT COORDINATE END ʕ•́ᴥ•̀ʔっ */
