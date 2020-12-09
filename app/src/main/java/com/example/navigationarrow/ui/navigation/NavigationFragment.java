@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.*;
@@ -25,6 +26,9 @@ import java.util.ArrayList;
 public class NavigationFragment extends Fragment {
     private NavigationViewModel navigationViewModel;
     Activity activity;
+
+    private float azimuth;
+    private float turn;
 
     /* ʕ•́ᴥ•̀ʔっ LOCATION VAR  ʕ•́ᴥ•̀ʔっ*/
     private FusedLocationProviderClient fusedLocationClient;
@@ -49,7 +53,7 @@ public class NavigationFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        navigationViewModel = (NavigationViewModel) obtainFragmentViewModel(getActivity(), NavigationViewModel.class);
+//        navigationViewModel = (NavigationViewModel) obtainFragmentViewModel(getActivity(), NavigationViewModel.class);
         View root = inflater.inflate(R.layout.fragment_navigation, container, false);
 
         activity = (AdventureActivity) getActivity();
@@ -126,7 +130,21 @@ public class NavigationFragment extends Fragment {
         return root;
     }
 
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        navigationViewModel = ViewModelProviders.of(getActivity()).get(NavigationViewModel.class);
+        navigationViewModel.getAzimuth().observe(this, azi -> azimuth = azi);
+    }
+
+
     public void resetButton(View view){
+        //azimuth change tester
+        float[] ori = new float[]{10,0,0};
+        navigationViewModel.setOrientation(ori);
+        navigationViewModel.setAzimuth();
+        Log.d("Values", String.valueOf(turn));
         Log.d("Rotation", String.valueOf(arrowImageView.getRotation()));
     }
 
@@ -142,7 +160,9 @@ public class NavigationFragment extends Fragment {
         String lon = getLongOrLatitude(getGPSValue(location,"long"), "long");
 
         double distance = calculateDistanceLongLatPoints(location.getLatitude(),currentTarget.getLatitude(), location.getLongitude(), currentTarget.getLongitude());
-        gpsTextView.setText(lat + "\n" + lon + "\n" + distance);
+        float bearing = location.bearingTo(currentTarget);
+        float rotation = directionNextCoordinate(location, currentTarget);
+        gpsTextView.setText(lat + "\n" + lon + "\n" + distance + "\n" + bearing + "\n" + rotation + "\n" + azimuth);
         /* ᕙ(`▿´)ᕗ if the location has changed, the text should be updated to the corresponding coordinates.
         Currently also features longitude and latitude for control purposes ᕙ(`▿´)ᕗ */
 
@@ -230,20 +250,30 @@ public class NavigationFragment extends Fragment {
     }
 
     public float directionNextCoordinate(Location location1, Location location2) {
-        float azimuth = navigationViewModel.getAzimuth();
-        azimuth = (float) Math.toDegrees(azimuth);
+        azimuth = navigationViewModel.getAzimuth().getValue();
+        //azimuth = (float) Math.toDegrees(azimuth);
         GeomagneticField geoField = new GeomagneticField(
-                (float) location1.getLatitude(),
-                (float) location1.getLongitude(),
-                (float) location1.getAltitude(),
+                Double.valueOf(location1.getLatitude()).floatValue(),
+                Double.valueOf(location1.getLongitude()).floatValue(),
+                Double.valueOf(location1.getAltitude()).floatValue(),
                 System.currentTimeMillis());
 
-        azimuth += geoField.getDeclination(); // converts magnetic north to true north
+        azimuth -= geoField.getDeclination(); // converts magnetic north to true north
         float bearingTo = location1.bearingTo(location2);
-        float turnAngle = azimuth - bearingTo;
+        if (bearingTo < 0) {
+            bearingTo = bearingTo + 360;
+        }
+        float turnAngle = bearingTo - azimuth;
+        if(turnAngle < 0){
+            turnAngle = turnAngle + 360;
+        }
+
+        turnAngle = turnAngle % 360;
+        turn = turnAngle;
+
         return turnAngle;
     }
 
 
-}
 
+}

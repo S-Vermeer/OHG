@@ -3,15 +3,15 @@ package com.example.navigationarrow.ui.navigation;
 
 import android.location.Location;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import java.util.*;
 
 public class NavigationViewModel extends ViewModel {
+
     private float[] orientation;
-    private MutableLiveData<Float> rotationAngle;
+    public MutableLiveData<Float> azimuth;
 
     private int locationsVisited;
     private boolean completedAdventure;
@@ -31,9 +31,8 @@ public class NavigationViewModel extends ViewModel {
     public NavigationViewModel() {
         float[] oriVal = new float[]{0,0,0};
         orientation = oriVal;
-        rotationAngle = new MutableLiveData<>();
-        Float f = (float) 0;
-        rotationAngle.setValue(f);
+        azimuth = new MutableLiveData<>();
+        azimuth.setValue(orientation[0]);
 
         time = GregorianCalendar.getInstance().getTime();
 
@@ -57,8 +56,12 @@ public class NavigationViewModel extends ViewModel {
         orientation = value;
     }
 
-    public float getAzimuth(){
-        return orientation[0];
+    public void setAzimuth(){
+        azimuth.setValue(orientation[0]);
+    }
+
+    public LiveData<Float> getAzimuth(){
+        return azimuth;
     }
 
     public void setLocationInfo(double lon, double lat, Location loc){

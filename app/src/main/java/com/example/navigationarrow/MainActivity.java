@@ -127,8 +127,9 @@ public class MainActivity extends AppCompatActivity {
         Location loc3 = new Location("");
         Location loc4 = new Location("");
 
-        loc1.setLatitude(51.5782d);
-        loc1.setLongitude(5.0111d);
+
+        loc1.setLatitude(51.4489d);
+        loc1.setLongitude(5.4581d);
         schoolLocations.add(loc1);
 
         loc2.setLatitude(51.5805d);

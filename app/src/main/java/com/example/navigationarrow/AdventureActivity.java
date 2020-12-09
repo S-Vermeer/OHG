@@ -15,6 +15,7 @@ import android.os.Bundle;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -46,6 +47,7 @@ public class AdventureActivity extends AppCompatActivity {
 
     private Location targetLocation;
     public int locationsVisited;
+    private float azimuth;
     /* ʕ•́ᴥ•̀ʔっ COMPASS VAR END ʕ•́ᴥ•̀ʔっ */
 
     /* ʕ•́ᴥ•̀ʔっ INTERFACE VAR ʕ•́ᴥ•̀ʔっ */
@@ -56,6 +58,7 @@ public class AdventureActivity extends AppCompatActivity {
     //(•◡•)/ View variables setup (•◡•)/
     TextView txtLat;
     TextView timeText;
+    TextView distanceWalkedText;
 
 
     //(•◡•)/ Notification Bar variables setup (•◡•)/
@@ -84,7 +87,9 @@ public class AdventureActivity extends AppCompatActivity {
 
         //ᕙ(`▿´)ᕗ Mandatory in onCreate ᕙ(`▿´)ᕗ
         super.onCreate(savedInstanceState);
-        navModel = (NavigationViewModel) obtainViewModel(this, NavigationViewModel.class);
+        navModel = ViewModelProviders.of(this).get(NavigationViewModel.class);
+//        navModel = (NavigationViewModel) obtainViewModel(this, NavigationViewModel.class);
+//        pagerAgentViewModel.init();
         ArrayList<Location> locs = getIntent().getParcelableArrayListExtra("EXTRA_LOCATIONS");
         navModel.setLocations(locs);
         DataBindingUtil.setContentView(this, R.layout.activity_adventure);
@@ -121,6 +126,9 @@ public class AdventureActivity extends AppCompatActivity {
                     floatOrientation[2] = (float) Math.toDegrees(floatOrientation[2]);
 
                     navModel.setOrientation(floatOrientation);
+                    navModel.setAzimuth();
+                    distanceWalkedText.setText(String.format("%.3f", floatOrientation[0]));
+
 
                 }
             }
@@ -197,6 +205,7 @@ public class AdventureActivity extends AppCompatActivity {
         /* ʕ•́ᴥ•̀ʔっ LOCATION RETRIEVAL END ʕ•́ᴥ•̀ʔっ */
 
         timeText = (TextView) findViewById(R.id.timeWalked);
+        distanceWalkedText = (TextView) findViewById(R.id.distanceWalked);
 
 
         BottomNavigationView navView = findViewById(R.id.nav_view_adventure);
