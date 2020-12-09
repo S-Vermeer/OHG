@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/navigation_compass" android:icon="@drawable/ic_compass_symbol" android:title="Compass"/>
-    <item android:id="@+id/navigation_story" android:icon="@drawable/ic_compass_symbol" android:title="Story"/>
+    <item android:id="@+id/navigation_compass" android:actionLayout="@layout/menu_item_layout" android:icon="@drawable/ic_compass_symbol" android:title="Compass"/>
+    <item android:id="@+id/navigation_story" android:actionLayout="@layout/menu_item_layout" android:icon="@drawable/books" android:title="Story"/>
 </menu>
