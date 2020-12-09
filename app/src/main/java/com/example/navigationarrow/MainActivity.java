@@ -9,6 +9,7 @@ import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 import android.widget.Toolbar;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -51,6 +52,11 @@ public class MainActivity extends AppCompatActivity {
         toAdventureActivity(view, 0);
     }
 
+    public void toSettingsActivity(View view){
+        Intent intent = new Intent(this, SettingsActivity.class);
+        startActivity(intent);
+    }
+
     public void toSchoolAdventureActivity(View view){
         toAdventureActivity(view, 1);
     }
@@ -66,8 +72,7 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         } else {
             //≧◉◡◉≦ TOFIX Thrown exception (Exits app)  ≧◉◡◉≦
-            checkPermission();
-            toAdventureActivity(view, id);
+            //toAdventureActivity(view,id);
         }
 
     }
@@ -163,17 +168,22 @@ public class MainActivity extends AppCompatActivity {
 
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-            //doSomething
-        } else if (requestCode == 2 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            //doSomething
-        } else {
-            checkPermission(); //ᕙ(`▿´)ᕗ try again if you dont get access to location/internet ᕙ(`▿´)ᕗ6
-        }
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,  int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "Thanks for enabling the permission", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(this,AdventureActivity.class);
+                intent.putExtra("EXTRA_LOCATIONS", locations);
+                startActivity(intent);
+
+                //do something permission is allowed here....
+
+            } else {
+                Toast.makeText(this, "Please allow the Permission", Toast.LENGTH_SHORT).show();
+
+            }
 
     }
-
 
     //≧◉◡◉≦ TOFIX GAME_STATE_KEY etc. How to access keys  ≧◉◡◉≦
     @Override

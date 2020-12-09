@@ -137,32 +137,6 @@ public class AdventureActivity extends AppCompatActivity {
 
                 navModel.setOrientation(floatOrientation);
                 navModel.setAzimuth();
-                /*azimuth = floatOrientation[0];
-                azimuth = (float) Math.toDegrees(azimuth);
-                distanceWalkedText.setText(String.format("%.3f", azimuth));*/
-
-
-
-                /*if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
-                    // Convert the rotation-vector to a 4x4 matrix.
-                    SensorManager.getRotationMatrixFromVector(floatRotationMatrix,
-                            event.values);
-                    SensorManager
-                            .remapCoordinateSystem(floatRotationMatrix,
-                                    SensorManager.AXIS_X, SensorManager.AXIS_Z,
-                                    floatRotationMatrix);
-                    SensorManager.getOrientation(floatRotationMatrix, floatOrientation);
-
-                    // Optionally convert the result from radians to degrees
-                    floatOrientation[0] = (float) Math.toDegrees(floatOrientation[0]);
-                    floatOrientation[1] = (float) Math.toDegrees(floatOrientation[1]);
-                    floatOrientation[2] = (float) Math.toDegrees(floatOrientation[2]);
-
-                    navModel.setOrientation(floatOrientation);
-                    navModel.setAzimuth();
-                    distanceWalkedText.setText(String.format("%.3f", floatOrientation[0]));
-
-*/
                 }
 
 
