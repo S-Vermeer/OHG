@@ -72,6 +72,9 @@ public class AdventureActivity extends AppCompatActivity {
 
     private SensorManager sensorManager;
     private Sensor sensorRotationVector;
+    private final float[] accelerometerReading = new float[3];
+    private final float[] magnetometerReading = new float[3];
+
 
     //(•◡•)/ Accelerometer (orientation) variables (•◡•)/
 
@@ -107,10 +110,40 @@ public class AdventureActivity extends AppCompatActivity {
         sensorRotationVector = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
 
         //(•◡•)/ Sensor event listener setup (•◡•)/
-        SensorEventListener sensorEventListenerRotationVector = new SensorEventListener() {
+        SensorEventListener sensorEventListener = new SensorEventListener() {
             @Override
             public void onSensorChanged(SensorEvent event) {
-                if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
+
+                // Rotation matrix based on current readings from accelerometer and magnetometer.
+                if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+                    System.arraycopy(event.values, 0, accelerometerReading,
+                            0, accelerometerReading.length);
+                } else if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
+                    System.arraycopy(event.values, 0, magnetometerReading,
+                            0, magnetometerReading.length);
+                }
+
+                updateOrientationAngles();
+
+
+                // Rotation matrix based on current readings from accelerometer and magnetometer.
+                final float[] rotationMatrix = new float[9];
+                SensorManager.getRotationMatrix(rotationMatrix, null,
+                        accelerometerReading, magnetometerReading);
+
+// Express the updated rotation matrix as three orientation angles.
+                final float[] orientationAngles = new float[3];
+                floatOrientation = SensorManager.getOrientation(rotationMatrix, orientationAngles);
+
+                navModel.setOrientation(floatOrientation);
+                navModel.setAzimuth();
+                /*azimuth = floatOrientation[0];
+                azimuth = (float) Math.toDegrees(azimuth);
+                distanceWalkedText.setText(String.format("%.3f", azimuth));*/
+
+
+
+                /*if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
                     // Convert the rotation-vector to a 4x4 matrix.
                     SensorManager.getRotationMatrixFromVector(floatRotationMatrix,
                             event.values);
@@ -129,9 +162,9 @@ public class AdventureActivity extends AppCompatActivity {
                     navModel.setAzimuth();
                     distanceWalkedText.setText(String.format("%.3f", floatOrientation[0]));
 
-
+*/
                 }
-            }
+
 
             @Override
             public void onAccuracyChanged(Sensor sensor, int accuracy) {
@@ -139,7 +172,17 @@ public class AdventureActivity extends AppCompatActivity {
             }
         };
 
-        sensorManager.registerListener(sensorEventListenerRotationVector, sensorRotationVector, SensorManager.SENSOR_DELAY_NORMAL);
+        Sensor accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        if (accelerometer != null) {
+            sensorManager.registerListener(sensorEventListener, accelerometer,
+                    SensorManager.SENSOR_DELAY_NORMAL, SensorManager.SENSOR_DELAY_UI);
+        }
+        Sensor magneticField = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        if (magneticField != null) {
+            sensorManager.registerListener(sensorEventListener, magneticField,
+                    SensorManager.SENSOR_DELAY_NORMAL, SensorManager.SENSOR_DELAY_UI);
+        }
+
         /* ʕ•́ᴥ•̀ʔっ ARROW DISPLAY END ʕ•́ᴥ•̀ʔっ */
 
         /* ʕ•́ᴥ•̀ʔっ LOCATION RETRIEVAL ʕ•́ᴥ•̀ʔっ */
@@ -311,6 +354,17 @@ public class AdventureActivity extends AppCompatActivity {
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
         builder.addLocationRequest(locationRequest);
         mLocationSettingsRequest = builder.build();
+    }
+
+    private void updateOrientationAngles(){
+        // Update rotation matrix, which is needed to update orientation angles.
+        SensorManager.getRotationMatrix(floatRotationMatrix, null,
+                accelerometerReading, magnetometerReading);
+
+        // "rotationMatrix" now has up-to-date information.
+
+        SensorManager.getOrientation(floatRotationMatrix, floatOrientation);
+
     }
 
 

@@ -251,7 +251,7 @@ public class NavigationFragment extends Fragment {
 
     public float directionNextCoordinate(Location location1, Location location2) {
         azimuth = navigationViewModel.getAzimuth().getValue();
-        //azimuth = (float) Math.toDegrees(azimuth);
+        azimuth = (float) Math.toDegrees(azimuth);
         GeomagneticField geoField = new GeomagneticField(
                 Double.valueOf(location1.getLatitude()).floatValue(),
                 Double.valueOf(location1.getLongitude()).floatValue(),
@@ -267,8 +267,6 @@ public class NavigationFragment extends Fragment {
         if(turnAngle < 0){
             turnAngle = turnAngle + 360;
         }
-
-        turnAngle = turnAngle % 360;
         turn = turnAngle;
 
         return turnAngle;
