@@ -160,15 +160,23 @@ public class NavigationFragment extends Fragment {
         String lon = getLongOrLatitude(getGPSValue(location,"long"), "long");
 
         double distance = calculateDistanceLongLatPoints(location.getLatitude(),currentTarget.getLatitude(), location.getLongitude(), currentTarget.getLongitude());
-        float bearing = location.bearingTo(currentTarget);
-        float rotation = directionNextCoordinate(location, currentTarget);
-        gpsTextView.setText(lat + "\n" + lon + "\n" + distance + "\n" + bearing + "\n" + rotation + "\n" + azimuth);
+        gpsTextView.setText(lat + "\n" + lon + "\n" + distance);
         /* ᕙ(`▿´)ᕗ if the location has changed, the text should be updated to the corresponding coordinates.
         Currently also features longitude and latitude for control purposes ᕙ(`▿´)ᕗ */
 
+
+        lastLocationNumber = navigationViewModel.getLocationsVisited();
         arrowImageView.setRotation(directionNextCoordinate(location, currentTarget));
 
-        locationIndex.setText(currentLocationNumber + "/" + navigationViewModel.locations.size());
+        AdventureActivity activity = (AdventureActivity) getActivity();
+        int locationsVisited = 10;
+        if(activity != null) {
+            locationsVisited = activity.locationsVisited;
+            currentLocationNumber = locationsVisited + 1;
+        }
+
+        locationIndex.setText(locationsVisited + 1 + "/" + 4);
+        currentTarget = navigationViewModel.locations.get(currentLocationNumber - 1);
 
 
     }

@@ -245,7 +245,7 @@ public class AdventureActivity extends AppCompatActivity {
         double dist = calculateDistanceLongLatPoints(location.getLatitude(), targetLocation.getLatitude(), location.getLongitude(), targetLocation.getLongitude());
 
 
-        if(dist < 5 && navModel.getPreviousDistance() >= 5){
+        if(dist < 15 && navModel.getPreviousDistance() >= 15){
             if(navModel.getLocationsVisited() == 3 && navModel.getCompletedAdventure() != true){
                 complete.show();
                 navModel.setCompletedAdventure(true);
