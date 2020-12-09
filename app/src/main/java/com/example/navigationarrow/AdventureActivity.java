@@ -258,7 +258,6 @@ public class AdventureActivity extends AppCompatActivity {
                 R.id.navigation_compass, R.id.navigation_story)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_adventure);
-        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(navView, navController);
     }
 
