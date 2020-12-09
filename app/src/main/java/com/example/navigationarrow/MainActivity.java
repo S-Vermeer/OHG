@@ -26,6 +26,7 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
     public boolean gotPermissions;
     private ArrayList<Location> locations;
+    private ArrayList<String> parts;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
     //ᕙ(`▿´)ᕗ Go to different activity, as to not crowd the main ᕙ(`▿´)ᕗ
 
     public void toHomeAdventureActivity(View view){
-        toAdventureActivity(view, 0);
+        toAdventureActivity(view, 0,0);
     }
 
     public void toSettingsActivity(View view){
@@ -58,17 +59,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void toSchoolAdventureActivity(View view){
-        toAdventureActivity(view, 1);
+        toAdventureActivity(view, 1,1);
     }
 
 
-    public void toAdventureActivity(View view, int id) {
+    public void toAdventureActivity(View view, int locId, int storyId) {
         checkPermission();
-        locations = getLocationsById(id);
+        locations = getLocationsById(locId);
+        parts = getPartsById(storyId);
 
         if(gotPermissions){
             Intent intent = new Intent(this, AdventureActivity.class);
             intent.putExtra("EXTRA_LOCATIONS", locations);
+            intent.putExtra("EXTRA_STORYPARTS", parts);
             startActivity(intent);
         } else {
             //≧◉◡◉≦ TOFIX Thrown exception (Exits app)  ≧◉◡◉≦
@@ -88,6 +91,35 @@ public class MainActivity extends AppCompatActivity {
 
         return locationsToGo;
     }
+
+    public ArrayList<String> getPartsById(int id){
+        ArrayList<String> partsToRead = new ArrayList<>();
+        switch (id){
+            case 0: partsToRead = getStoryHomeList(); break;
+            case 1: partsToRead = getStorySchoolList(); break;
+        }
+
+        return partsToRead;
+    }
+
+    public ArrayList<String> getStoryHomeList(){
+        ArrayList<String> story = new ArrayList<>();
+        story.add("home1");
+        story.add("home2");
+        story.add("home3");
+        story.add("home4");
+        return story;
+    }
+
+    public ArrayList<String> getStorySchoolList(){
+        ArrayList<String> story = new ArrayList<>();
+        story.add("school1");
+        story.add("school2");
+        story.add("school3");
+        story.add("school4");
+        return story;
+    }
+
 
     public ArrayList<Location> locationsHomeList() {
         ArrayList<Location> homeLocations = new ArrayList<>();

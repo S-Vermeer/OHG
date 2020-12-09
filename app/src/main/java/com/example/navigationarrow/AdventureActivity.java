@@ -21,6 +21,7 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import com.example.navigationarrow.ui.navigation.NavigationViewModel;
+import com.example.navigationarrow.ui.story.StoryViewModel;
 import com.google.android.gms.location.*;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.Snackbar;
@@ -35,6 +36,7 @@ import static java.lang.Math.floor;
 public class AdventureActivity extends AppCompatActivity {
 
     private NavigationViewModel navModel;
+    private StoryViewModel storyModel;
 
     /* ʕ•́ᴥ•̀ʔっ LOCATION VAR  ʕ•́ᴥ•̀ʔっ*/
     private FusedLocationProviderClient fusedLocationClient;
@@ -91,6 +93,7 @@ public class AdventureActivity extends AppCompatActivity {
         //ᕙ(`▿´)ᕗ Mandatory in onCreate ᕙ(`▿´)ᕗ
         super.onCreate(savedInstanceState);
         navModel = ViewModelProviders.of(this).get(NavigationViewModel.class);
+        storyModel = ViewModelProviders.of(this).get(StoryViewModel.class);
 //        navModel = (NavigationViewModel) obtainViewModel(this, NavigationViewModel.class);
 //        pagerAgentViewModel.init();
         ArrayList<Location> locs = getIntent().getParcelableArrayListExtra("EXTRA_LOCATIONS");
@@ -249,12 +252,14 @@ public class AdventureActivity extends AppCompatActivity {
             if(navModel.getLocationsVisited() == 3 && navModel.getCompletedAdventure() != true){
                 complete.show();
                 navModel.setCompletedAdventure(true);
-                //storyModel.updateStoryPartIndex();
+
             } else if(navModel.getCompletedAdventure() != true) {
                 sb.show();
                 navModel.setNewGoal();
                 targetLocation = navModel.getCurrentTarget();
                 locationsVisited = navModel.getLocationsVisited();
+
+                storyModel.updateStoryIndex();
                 //storyModel.updateStoryPartIndex();
             }
         }

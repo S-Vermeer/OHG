@@ -25,7 +25,7 @@ import java.util.ArrayList;
 
 public class NavigationFragment extends Fragment {
     private NavigationViewModel navigationViewModel;
-    Activity activity;
+    AdventureActivity activity;
 
     private float azimuth;
     private float turn;
@@ -154,7 +154,6 @@ public class NavigationFragment extends Fragment {
         return new ViewModelProvider(fragment, factory).get(modelClass);
     }
 
-
     private void locationChange(Location location){
         String lat = getLongOrLatitude(getGPSValue(location,"lat"), "lat");
         String lon = getLongOrLatitude(getGPSValue(location,"long"), "long");
@@ -168,7 +167,6 @@ public class NavigationFragment extends Fragment {
         lastLocationNumber = navigationViewModel.getLocationsVisited();
         arrowImageView.setRotation(directionNextCoordinate(location, currentTarget));
 
-        AdventureActivity activity = (AdventureActivity) getActivity();
         int locationsVisited = 10;
         if(activity != null) {
             locationsVisited = activity.locationsVisited;
