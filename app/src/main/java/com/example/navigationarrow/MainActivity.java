@@ -86,9 +86,6 @@ public class MainActivity extends AppCompatActivity {
             case 0: locationsToGo = locationsHomeList(); break;
             case 1: locationsToGo = locationsSchoolList(); break;
         }
-
-
-
         return locationsToGo;
     }
 
@@ -113,10 +110,11 @@ public class MainActivity extends AppCompatActivity {
 
     public ArrayList<String> getStorySchoolList(){
         ArrayList<String> story = new ArrayList<>();
-        story.add("school1");
+        story.add("schoolSTART");
         story.add("school2");
         story.add("school3");
         story.add("school4");
+        story.add("schoolEND");
         return story;
     }
 
@@ -155,20 +153,20 @@ public class MainActivity extends AppCompatActivity {
         Location loc4 = new Location("");
 
 
-        loc1.setLatitude(51.449778d);
-        loc1.setLongitude(5.453063d);
+        loc1.setLatitude(51.450936d);
+        loc1.setLongitude(5.453675d);
         schoolLocations.add(loc1);
 
-        loc2.setLatitude(51.5805d);
-        loc2.setLongitude(5.0118d);
+        loc2.setLatitude(51.451087d);
+        loc2.setLongitude(5.453784d);
         schoolLocations.add(loc2);
 
-        loc3.setLatitude(51.5803d);
-        loc3.setLongitude(5.0139d);
+        loc3.setLatitude(51.450738d);
+        loc3.setLongitude(5.45363d);
         schoolLocations.add(loc3);
 
-        loc4.setLatitude(51.5780d);
-        loc4.setLongitude(5.0131d);
+        loc4.setLatitude(51.451087d);
+        loc4.setLongitude(5.453784d);
         schoolLocations.add(loc4);
 
         return schoolLocations;

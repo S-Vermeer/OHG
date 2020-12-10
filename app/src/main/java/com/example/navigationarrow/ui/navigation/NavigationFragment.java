@@ -119,11 +119,11 @@ public class NavigationFragment extends Fragment {
 
         fusedLocationClient.requestLocationUpdates(locationRequest,
                 locationCallback, Looper.myLooper());
-
         fusedLocationClient.getLastLocation().addOnSuccessListener(activity, location -> {
             if (location != null) {
                 locationChange(location);
             }
+
         });
 
 

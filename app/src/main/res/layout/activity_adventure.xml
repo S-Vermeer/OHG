@@ -35,11 +35,12 @@
             android:layout_marginBottom="4dp">
 
     </com.google.android.material.bottomnavigation.BottomNavigationView>
-    --><fragment
+    -->
+    <fragment
             android:id="@+id/nav_host_fragment_adventure"
             android:name="androidx.navigation.fragment.NavHostFragment"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             app:defaultNavHost="true"
             app:navGraph="@navigation/adventure_navigation"
             app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
