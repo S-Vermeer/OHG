@@ -68,5 +68,12 @@
             app:layout_constraintEnd_toEndOf="parent" android:onClick="toSchoolAdventureActivity"
             android:paddingTop="5dp"
             android:layout_marginTop="150dp" app:layout_constraintTop_toBottomOf="@+id/buttonHome" android:drawableTop="@drawable/ic_1923642" android:background="@color/colorTextLightYellow"/>
+    <Button
+            android:text="Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:id="@+id/button3"
+            app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.498" app:layout_constraintTop_toBottomOf="@+id/buttonSchool"
+            android:layout_marginTop="60dp" android:onClick="toARActivity"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

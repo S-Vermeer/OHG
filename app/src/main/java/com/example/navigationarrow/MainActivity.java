@@ -80,6 +80,11 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public void toARActivity(View view){
+        Intent intent = new Intent(this, ARActivity.class);
+        startActivity(intent);
+    }
+
     public ArrayList<Location> getLocationsById(int id){
         ArrayList<Location> locationsToGo = new ArrayList<>();
         switch (id){
