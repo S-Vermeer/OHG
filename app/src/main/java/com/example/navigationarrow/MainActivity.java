@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.view.View;
 import android.widget.Toast;
 import android.widget.Toolbar;
@@ -50,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
     //ᕙ(`▿´)ᕗ Go to different activity, as to not crowd the main ᕙ(`▿´)ᕗ
 
     public void toHomeAdventureActivity(View view){
-        toAdventureActivity(view, 0,0);
+        toAdventureActivity(view, 0);
     }
 
     public void toSettingsActivity(View view){
@@ -59,19 +60,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void toSchoolAdventureActivity(View view){
-        toAdventureActivity(view, 1,1);
+        toAdventureActivity(view,1);
     }
 
 
-    public void toAdventureActivity(View view, int locId, int storyId) {
+    public void toAdventureActivity(View view, int id) {
         checkPermission();
-        locations = getLocationsById(locId);
-        parts = getPartsById(storyId);
 
         if(gotPermissions){
             Intent intent = new Intent(this, AdventureActivity.class);
-            intent.putExtra("EXTRA_LOCATIONS", locations);
-            intent.putExtra("EXTRA_STORYPARTS", parts);
+            intent.putExtra("EXTRA_ID", id);
             startActivity(intent);
         } else {
             //≧◉◡◉≦ TOFIX Thrown exception (Exits app)  ≧◉◡◉≦
@@ -80,97 +78,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public ArrayList<Location> getLocationsById(int id){
-        ArrayList<Location> locationsToGo = new ArrayList<>();
-        switch (id){
-            case 0: locationsToGo = locationsHomeList(); break;
-            case 1: locationsToGo = locationsSchoolList(); break;
-        }
-        return locationsToGo;
-    }
 
-    public ArrayList<String> getPartsById(int id){
-        ArrayList<String> partsToRead = new ArrayList<>();
-        switch (id){
-            case 0: partsToRead = getStoryHomeList(); break;
-            case 1: partsToRead = getStorySchoolList(); break;
-        }
-
-        return partsToRead;
-    }
-
-    public ArrayList<String> getStoryHomeList(){
-        ArrayList<String> story = new ArrayList<>();
-        story.add("home1");
-        story.add("home2");
-        story.add("home3");
-        story.add("home4");
-        return story;
-    }
-
-    public ArrayList<String> getStorySchoolList(){
-        ArrayList<String> story = new ArrayList<>();
-        story.add("schoolSTART");
-        story.add("school2");
-        story.add("school3");
-        story.add("school4");
-        story.add("schoolEND");
-        return story;
-    }
-
-
-    public ArrayList<Location> locationsHomeList() {
-        ArrayList<Location> homeLocations = new ArrayList<>();
-        Location loc1 = new Location("");
-        Location loc2 = new Location("");
-        Location loc3 = new Location("");
-        Location loc4 = new Location("");
-
-        loc1.setLatitude(51.5782d);
-        loc1.setLongitude(5.0111d);
-        homeLocations.add(loc1);
-
-        loc2.setLatitude(51.5805d);
-        loc2.setLongitude(5.0118d);
-        homeLocations.add(loc2);
-
-        loc3.setLatitude(51.5803d);
-        loc3.setLongitude(5.0139d);
-        homeLocations.add(loc3);
-
-        loc4.setLatitude(51.5780d);
-        loc4.setLongitude(5.0131d);
-        homeLocations.add(loc4);
-
-        return homeLocations;
-    }
-
-    public ArrayList<Location> locationsSchoolList() {
-        ArrayList<Location> schoolLocations = new ArrayList<>();
-        Location loc1 = new Location("");
-        Location loc2 = new Location("");
-        Location loc3 = new Location("");
-        Location loc4 = new Location("");
-
-
-        loc1.setLatitude(51.450936d);
-        loc1.setLongitude(5.453675d);
-        schoolLocations.add(loc1);
-
-        loc2.setLatitude(51.451087d);
-        loc2.setLongitude(5.453784d);
-        schoolLocations.add(loc2);
-
-        loc3.setLatitude(51.450738d);
-        loc3.setLongitude(5.45363d);
-        schoolLocations.add(loc3);
-
-        loc4.setLatitude(51.451087d);
-        loc4.setLongitude(5.453784d);
-        schoolLocations.add(loc4);
-
-        return schoolLocations;
-    }
 
     public void checkPermission() {
         //ᕙ(`▿´)ᕗ Check whether the phone has permissions to access location ... ᕙ(`▿´)ᕗ

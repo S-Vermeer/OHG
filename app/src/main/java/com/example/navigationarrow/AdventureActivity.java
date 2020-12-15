@@ -96,8 +96,8 @@ public class AdventureActivity extends AppCompatActivity {
         storyModel = ViewModelProviders.of(this).get(StoryViewModel.class);
 //        navModel = (NavigationViewModel) obtainViewModel(this, NavigationViewModel.class);
 //        pagerAgentViewModel.init();
-        ArrayList<Location> locs = getIntent().getParcelableArrayListExtra("EXTRA_LOCATIONS");
-        navModel.setLocations(locs);
+        Adventure adventure = getAdventureFromId(getIntent().getIntExtra("EXTRA_ID",0));
+        navModel.setLocations(adventure.getLocations());
         DataBindingUtil.setContentView(this, R.layout.activity_adventure);
 
         //(•◡•)/ Notification Bar variables assignment (•◡•)/
@@ -344,6 +344,15 @@ public class AdventureActivity extends AppCompatActivity {
         SensorManager.getOrientation(floatRotationMatrix, floatOrientation);
 
     }
+
+    private Adventure getAdventureFromId(int id){
+        Adventure currentAdventure = new Adventure(id);
+        currentAdventure.setLocations(currentAdventure.getLocationsById(id));
+        currentAdventure.setStoryParts(currentAdventure.getPartsById(id));
+        return currentAdventure;
+    }
+
+
 
 
 }

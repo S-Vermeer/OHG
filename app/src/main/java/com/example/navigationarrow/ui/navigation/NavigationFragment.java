@@ -17,6 +17,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.*;
+import com.example.navigationarrow.Adventure;
 import com.example.navigationarrow.AdventureActivity;
 import com.example.navigationarrow.R;
 import com.google.android.gms.location.*;
@@ -72,8 +73,8 @@ public class NavigationFragment extends Fragment {
         reset.setOnClickListener(v -> resetButton(v));
 
         navigationViewModel = ViewModelProviders.of(this).get(NavigationViewModel.class);
-        ArrayList<Location> locs = activity.getIntent().getParcelableArrayListExtra("EXTRA_LOCATIONS");
-        navigationViewModel.setLocations(locs);
+        Adventure adventure = new Adventure(activity.getIntent().getIntExtra("EXTRA_ID",0));
+        navigationViewModel.setLocations(adventure.getLocations());
 
         //(•◡•)/ See how far you are on the route, how many checkpoints to go (•◡•)/
         currentLocationNumber = 1;
