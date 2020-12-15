@@ -185,6 +185,7 @@ public class AdventureActivity extends AppCompatActivity {
         },0, 5);
 
 
+
         locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
