@@ -10,15 +10,15 @@ public class Adventure {
     private ArrayList<Location> locations;
     private ArrayList<String> storyParts;
     private boolean completed;
-    private Time completionTime;
+    private long completionTime;
     private Dictionary dictionary;
 
     public Adventure(int id) {
         adventureId = id;
         completed = false;
+        dictionary = new Dictionary();
         setLocations(getLocationsById(id));
         setStoryParts(getPartsById(id));
-        dictionary = new Dictionary();
     }
 
     public void setLocations(ArrayList<Location> locs) {
@@ -49,11 +49,11 @@ public class Adventure {
         return completed;
     }
 
-    public void setCompletionTime(Time comTime) {
+    public void setCompletionTime(long comTime) {
         completionTime = comTime;
     }
 
-    public Time getCompletionTime() {
+    public long getCompletionTime() {
         return completionTime;
     }
 

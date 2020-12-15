@@ -85,6 +85,8 @@ public class AdventureActivity extends AppCompatActivity {
 
     /* ʕ•́ᴥ•̀ʔっ SENSOR VAR END ʕ•́ᴥ•̀ʔっ */
 
+    Adventure adventure;
+
 
 
     @Override
@@ -96,7 +98,7 @@ public class AdventureActivity extends AppCompatActivity {
         storyModel = ViewModelProviders.of(this).get(StoryViewModel.class);
 //        navModel = (NavigationViewModel) obtainViewModel(this, NavigationViewModel.class);
 //        pagerAgentViewModel.init();
-        Adventure adventure = getAdventureFromId(getIntent().getIntExtra("EXTRA_ID",0));
+        adventure = getAdventureFromId(getIntent().getIntExtra("EXTRA_ID",0));
         navModel.setLocations(adventure.getLocations());
         DataBindingUtil.setContentView(this, R.layout.activity_adventure);
 
@@ -177,9 +179,11 @@ public class AdventureActivity extends AppCompatActivity {
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                Long spentTime = navModel.getSpentTime();
+                if(adventure.getCompleted() != true) {
+                    Long spentTime = navModel.getSpentTime();
 
-                runOnUiThread(() -> timeText.setText(TimeString(spentTime)));
+                    runOnUiThread(() -> timeText.setText(TimeString(spentTime)));
+                }
 
             }
         },0, 5);
@@ -251,24 +255,23 @@ public class AdventureActivity extends AppCompatActivity {
 
         if(dist < 15 && navModel.getPreviousDistance() >= 15){
             if(navModel.getLocationsVisited() == 3 && navModel.getCompletedAdventure() != true){
-                complete.show();
+                timer.cancel();
                 navModel.setCompletedAdventure(true);
+                adventure.setCompleted();
+                adventure.setCompletionTime(navModel.getSpentTime());
+                complete.show();
+
 
             } else if(navModel.getCompletedAdventure() != true) {
-                sb.show();
                 navModel.setNewGoal();
                 targetLocation = navModel.getCurrentTarget();
                 locationsVisited = navModel.getLocationsVisited();
+                sb.show();
 
                 storyModel.updateStoryIndex();
-                //storyModel.updateStoryPartIndex();
             }
         }
         navModel.setPreviousDistance(dist);
-
-        long timeSpent = navModel.getSpentTime();
-
-        timeText.setText(TimeString(timeSpent));
     }
 
 
