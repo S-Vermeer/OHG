@@ -21,6 +21,9 @@ import com.example.navigationarrow.Adventure;
 import com.example.navigationarrow.AdventureActivity;
 import com.example.navigationarrow.R;
 import com.google.android.gms.location.*;
+import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
+import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
+import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
 
 import java.util.ArrayList;
 
@@ -127,6 +130,23 @@ public class NavigationFragment extends Fragment {
 
         });
 
+        ShowcaseConfig config = new ShowcaseConfig();
+        config.setDelay(500); // half second between each showcase view
+
+        MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(activity, "#navSequence");
+
+        sequence.setConfig(config);
+
+        sequence.addSequenceItem(arrowImageView,
+                "This is navigation", "GOT IT");
+
+        sequence.addSequenceItem(locationIndex,
+                "This is the index of the target", "GOT IT");
+
+        sequence.addSequenceItem(gpsTextView,
+                "This is some location info", "GOT IT");
+
+        sequence.start();
 
         return root;
     }

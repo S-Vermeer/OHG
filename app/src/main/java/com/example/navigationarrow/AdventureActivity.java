@@ -25,6 +25,8 @@ import com.example.navigationarrow.ui.story.StoryViewModel;
 import com.google.android.gms.location.*;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.Snackbar;
+import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
+import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
 
 import java.util.ArrayList;
 import java.util.Timer;
@@ -231,6 +233,9 @@ public class AdventureActivity extends AppCompatActivity {
 
         timeText = (TextView) findViewById(R.id.timeWalked);
         distanceWalkedText = (TextView) findViewById(R.id.distanceWalked);
+
+
+
 
 
         BottomNavigationView navView = findViewById(R.id.nav_view_adventure);
