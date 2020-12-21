@@ -102,6 +102,9 @@ public class AdventureActivity extends AppCompatActivity {
 //        pagerAgentViewModel.init();
         adventure = getAdventureFromId(getIntent().getIntExtra("EXTRA_ID",0));
         navModel.setLocations(adventure.getLocations());
+        navModel.setSequenceId(getIntent().getStringExtra("EXTRA_SEQUENCE_ID"));
+
+
         DataBindingUtil.setContentView(this, R.layout.activity_adventure);
 
         //(•◡•)/ Notification Bar variables assignment (•◡•)/

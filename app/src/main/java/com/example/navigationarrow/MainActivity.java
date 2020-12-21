@@ -23,6 +23,7 @@ import androidx.navigation.ui.NavigationUI;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
     public boolean gotPermissions;
@@ -70,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
         if(gotPermissions){
             Intent intent = new Intent(this, AdventureActivity.class);
             intent.putExtra("EXTRA_ID", id);
+            intent.putExtra("EXTRA_SEQUENCE_ID",setSequenceId());
             startActivity(intent);
         } else {
             //≧◉◡◉≦ TOFIX Thrown exception (Exits app)  ≧◉◡◉≦
@@ -112,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "Thanks for enabling the permission", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(this,AdventureActivity.class);
                 intent.putExtra("EXTRA_LOCATIONS", locations);
+
                 startActivity(intent);
 
                 //do something permission is allowed here....
@@ -139,5 +142,10 @@ public class MainActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
     }
 
+    public String setSequenceId(){
+        Random r = new Random();
+        int sequence  = r.nextInt(10000-100) + 100;
+        return String.valueOf(sequence);
+    }
 
 }

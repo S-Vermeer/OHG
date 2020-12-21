@@ -25,6 +25,8 @@ public class NavigationViewModel extends ViewModel {
 
     private Date time;
 
+    private String sequenceId;
+
     public ArrayList<Location> locations = new ArrayList<>();
 
 
@@ -45,6 +47,7 @@ public class NavigationViewModel extends ViewModel {
         addLocationToCollection(loc2);
         addLocationToCollection(loc3);
         addLocationToCollection(loc4);
+
     }
 
     public void setLocations(ArrayList<Location> locs){
@@ -114,4 +117,17 @@ public class NavigationViewModel extends ViewModel {
         return currentTarget;
     }
 
+    public String getSequenceId(){
+        return sequenceId;
+    }
+
+    public void setSequenceId(String id){
+        sequenceId = id;
+    }
+
+    public String calculateSequenceId(){
+        Random r = new Random();
+        int sequence  = r.nextInt(10000-100) + 100;
+        return String.valueOf(sequence);
+    }
 }

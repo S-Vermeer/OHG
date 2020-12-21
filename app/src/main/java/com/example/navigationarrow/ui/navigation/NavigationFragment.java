@@ -130,23 +130,10 @@ public class NavigationFragment extends Fragment {
 
         });
 
-        ShowcaseConfig config = new ShowcaseConfig();
-        config.setDelay(500); // half second between each showcase view
 
-        MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(activity, "#navSequence");
+        navigationViewModel.setSequenceId(activity.getIntent().getStringExtra("EXTRA_SEQUENCE_ID"));
 
-        sequence.setConfig(config);
-
-        sequence.addSequenceItem(arrowImageView,
-                "This is navigation", "GOT IT");
-
-        sequence.addSequenceItem(locationIndex,
-                "This is the index of the target", "GOT IT");
-
-        sequence.addSequenceItem(gpsTextView,
-                "This is some location info", "GOT IT");
-
-        sequence.start();
+        showcaseView();
 
         return root;
     }
@@ -294,6 +281,26 @@ public class NavigationFragment extends Fragment {
         turn = turnAngle;
 
         return turnAngle;
+    }
+
+    private void showcaseView(){
+        ShowcaseConfig config = new ShowcaseConfig();
+        config.setDelay(500); // half second between each showcase view
+
+        MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(activity, navigationViewModel.getSequenceId());
+
+        sequence.setConfig(config);
+
+        sequence.addSequenceItem(arrowImageView,
+                "This is navigation", "GOT IT");
+
+        sequence.addSequenceItem(locationIndex,
+                "This is the index of the target", "GOT IT");
+
+        sequence.addSequenceItem(gpsTextView,
+                "This is some location info", "GOT IT");
+
+        sequence.start();
     }
 
 
