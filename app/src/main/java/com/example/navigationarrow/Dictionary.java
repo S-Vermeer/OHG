@@ -6,10 +6,11 @@ import java.util.ArrayList;
 
 public class Dictionary {
 
-    private ArrayList<String> storyHomeList;
-    private ArrayList<String> storySchoolList;
-    private ArrayList<Location> locationsHomeList;
-    private ArrayList<Location> locationsSchoolList;
+    private ArrayList<String> StoryHomeList;
+    private ArrayList<String> StorySchoolList;
+    private ArrayList<Location> LocationsHomeList;
+    private ArrayList<Location> LocationsSchoolList;
+    private ArrayList<Assignment> AssignmentList;
 
 
     public Dictionary(){
@@ -17,6 +18,7 @@ public class Dictionary {
         initStorySchoolList();
         initLocationsHomeList();
         initLocationsSchoolList();
+        initAssignmentList();
     }
 
     private void initStoryHomeList() {
@@ -25,7 +27,7 @@ public class Dictionary {
         story.add("home2");
         story.add("home3");
         story.add("home4");
-        storyHomeList = story;
+        StoryHomeList = story;
     }
 
     private void initStorySchoolList() {
@@ -35,16 +37,16 @@ public class Dictionary {
         story.add("school3");
         story.add("school4");
         story.add("schoolEND");
-        storySchoolList = story;
+        StorySchoolList = story;
     }
 
     public ArrayList<String> getStoryHomeList() {
-        return storyHomeList;
+        return StoryHomeList;
     }
 
 
     public ArrayList<String> getStorySchoolList(){
-        return storySchoolList;
+        return StorySchoolList;
     }
 
 
@@ -71,7 +73,7 @@ public class Dictionary {
         loc4.setLongitude(5.0131d);
         homeLocations.add(loc4);
 
-        locationsHomeList = homeLocations;
+        LocationsHomeList = homeLocations;
     }
 
     private void initLocationsSchoolList() {
@@ -98,14 +100,50 @@ public class Dictionary {
         loc4.setLongitude(5.453784d);
         schoolLocations.add(loc4);
 
-        locationsSchoolList = schoolLocations;
+        LocationsSchoolList = schoolLocations;
     }
 
     public ArrayList<Location> getLocationsHomeList() {
-        return locationsHomeList;
+        return LocationsHomeList;
     }
 
     public ArrayList<Location> getLocationsSchoolList(){
-        return  locationsSchoolList;
+        return  LocationsSchoolList;
+    }
+
+    private void initAssignmentList(){
+        ArrayList<String> multipleAnswerList = new ArrayList<>();
+        multipleAnswerList.add("Answer1");
+        multipleAnswerList.add("Answer2");
+        multipleAnswerList.add("Answer3");
+        multipleAnswerList.add("Answer4");
+        multipleAnswerList.add("Answer5");
+
+        ArrayList<String> boolAnswerList = new ArrayList<>();
+        boolAnswerList.add("True");
+        boolAnswerList.add("False");
+
+        ArrayList<Integer> multipleCorrectList = new ArrayList<>();
+        multipleCorrectList.add(0);
+        multipleCorrectList.add(2);
+        multipleCorrectList.add(4);
+
+        AssignmentList.add(new Assignment(0,"Question1",multipleAnswerList,0));
+        AssignmentList.add(new Assignment(0,"Question2",multipleAnswerList,1));
+
+        AssignmentList.add(new Assignment(0,"Question3",multipleAnswerList,multipleCorrectList));
+        AssignmentList.add(new Assignment(0,"Question4",multipleAnswerList,multipleCorrectList));
+        AssignmentList.add(new Assignment(0,"Question5",multipleAnswerList,multipleCorrectList));
+
+        AssignmentList.add(new Assignment(0,"Question6",boolAnswerList,0));
+        AssignmentList.add(new Assignment(0,"Question7",boolAnswerList,0));
+        AssignmentList.add(new Assignment(0,"Question8",boolAnswerList,0));
+        AssignmentList.add(new Assignment(0,"Question9",boolAnswerList,1));
+        AssignmentList.add(new Assignment(0,"Question10",boolAnswerList,1));
+
+    }
+
+    public ArrayList<Assignment> getAssignmentList(){
+        return AssignmentList;
     }
 }

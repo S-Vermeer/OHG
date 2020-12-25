@@ -7,6 +7,8 @@ public class Assignment {
     private String Question;
     private ArrayList<String> AnswerOptions;
     private int AnswerId;
+    private ArrayList<Integer> AnswerIdsList;
+    private int Mistakes;
 
     public Assignment(int id, String question){
         Id = id;
@@ -24,6 +26,13 @@ public class Assignment {
         Question = question;
         AnswerOptions = answerOptions;
         AnswerId = answerId;
+    }
+
+    public Assignment(int id, String question, ArrayList<String> answerOptions, ArrayList<Integer> answerIds){
+        Id = id;
+        Question = question;
+        AnswerOptions = answerOptions;
+        AnswerIdsList = answerIds;
     }
 
     public void setId(int id){
@@ -68,6 +77,34 @@ public class Assignment {
         } else {
             return false;
         }
+    }
+
+    public Boolean checkAnswer(ArrayList<Integer> ids){
+        int mistakes = 0;
+        for(int i = 0; i < AnswerOptions.size(); i++){
+            if(AnswerIdsList.contains(i) && ids.contains(i)){
+                mistakes++;
+            } else if(!AnswerIdsList.contains(i) && ids.contains(i)){
+                mistakes++;
+            }
+        }
+
+        Mistakes = mistakes;
+
+        if(mistakes == 0){
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    public void setMistakes(int id){
+        Mistakes = id;
+    }
+
+    public int getMistakes(){
+        return Mistakes;
     }
 
 }
