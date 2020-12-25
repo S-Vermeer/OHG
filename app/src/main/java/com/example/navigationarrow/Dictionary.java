@@ -112,6 +112,7 @@ public class Dictionary {
     }
 
     private void initAssignmentList(){
+        AssignmentList = new ArrayList<>();
         ArrayList<String> multipleAnswerList = new ArrayList<>();
         multipleAnswerList.add("Answer1");
         multipleAnswerList.add("Answer2");

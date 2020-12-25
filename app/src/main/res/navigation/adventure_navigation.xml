@@ -17,5 +17,10 @@
             android:label="Story"
             tools:layout="@layout/fragment_story"/>
 
+    <fragment android:id="@+id/navigation_assignment"
+              android:name="com.example.navigationarrow.ui.assignment.AssignmentFragment"
+              android:label="Assignment"
+              tools:layout="@layout/fragment_assignment"/>
+
 
 </navigation>
