@@ -1,6 +1,5 @@
 package com.example.navigationarrow.ui.navigation;
 
-import android.app.Activity;
 import android.hardware.GeomagneticField;
 import android.location.Location;
 import android.os.Bundle;
@@ -21,8 +20,8 @@ import com.example.navigationarrow.Adventure;
 import com.example.navigationarrow.AdventureActivity;
 import com.example.navigationarrow.R;
 import com.google.android.gms.location.*;
-
-import java.util.ArrayList;
+import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
+import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
 
 public class NavigationFragment extends Fragment {
     private NavigationViewModel navigationViewModel;
@@ -48,7 +47,7 @@ public class NavigationFragment extends Fragment {
     /* ʕ•́ᴥ•̀ʔっ INTERFACE VAR  ʕ•́ᴥ•̀ʔっ*/
     ImageView arrowImageView;
     TextView gpsTextView;
-    Button reset;
+    Button info;
     TextView locationIndex;
     /* ʕ•́ᴥ•̀ʔっ INTERFACE VAR END  ʕ•́ᴥ•̀ʔっ*/
 
@@ -65,12 +64,12 @@ public class NavigationFragment extends Fragment {
         arrowImageView = root.findViewById(R.id.imageView);
         gpsTextView = root.findViewById(R.id.gpsText);
         arrowImageView.setRotation(80);
-        reset = root.findViewById(R.id.button2);
+        info = root.findViewById(R.id.infoOverlayButton);
         locationIndex = root.findViewById(R.id.gpsText2);
 
 
         //(•◡•)/ Assign Listeners (•◡•)/
-        reset.setOnClickListener(v -> resetButton(v));
+        info.setOnClickListener(v -> infoButton(v));
 
         navigationViewModel = ViewModelProviders.of(this).get(NavigationViewModel.class);
         Adventure adventure = new Adventure(activity.getIntent().getIntExtra("EXTRA_ID",0));
@@ -128,6 +127,8 @@ public class NavigationFragment extends Fragment {
         });
 
 
+        navigationViewModel.setSequenceId(activity.getIntent().getStringExtra("EXTRA_SEQUENCE_ID"));
+
         return root;
     }
 
@@ -140,13 +141,9 @@ public class NavigationFragment extends Fragment {
     }
 
 
-    public void resetButton(View view){
-        //azimuth change tester
-        float[] ori = new float[]{10,0,0};
-        navigationViewModel.setOrientation(ori);
-        navigationViewModel.setAzimuth();
-        Log.d("Values", String.valueOf(turn));
-        Log.d("Rotation", String.valueOf(arrowImageView.getRotation()));
+    public void infoButton(View view){
+        navigationViewModel.setSequenceId(navigationViewModel.calculateSequenceId());
+        showcaseView();
     }
 
 
@@ -174,6 +171,8 @@ public class NavigationFragment extends Fragment {
         double distance = calculateDistanceLongLatPoints(location.getLatitude(),currentTarget.getLatitude(), location.getLongitude(), currentTarget.getLongitude());
         gpsTextView.setText(lat + "\n" + lon + "\n" + distance);
         /* ᕙ(`▿´)ᕗ if the location has changed, the text should be updated to the corresponding coordinates. ᕙ(`▿´)ᕗ */
+
+        showcaseView();
 
     }
 
@@ -274,6 +273,26 @@ public class NavigationFragment extends Fragment {
         turn = turnAngle;
 
         return turnAngle;
+    }
+
+    private void showcaseView(){
+        ShowcaseConfig config = new ShowcaseConfig();
+        config.setDelay(500); // half second between each showcase view
+
+        MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(activity, navigationViewModel.getSequenceId());
+
+        sequence.setConfig(config);
+
+        sequence.addSequenceItem(arrowImageView,
+                "This is navigation", "GOT IT");
+
+        sequence.addSequenceItem(locationIndex,
+                "This is the index of the target", "GOT IT");
+
+        sequence.addSequenceItem(gpsTextView,
+                "This is some location info", "GOT IT");
+
+        sequence.start();
     }
 
 
