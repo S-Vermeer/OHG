@@ -7,5 +7,6 @@
     <color name="colorBackgroundLightGreen">#2d821e</color>
     <color name="colorTextDarkYellow">#9c9908</color>
     <color name="colorTextLightYellow">#d9d521</color>
+    <color name="colorDarkness">#1f1e1c</color>
 
 </resources>

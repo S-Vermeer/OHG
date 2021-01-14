@@ -16,4 +16,12 @@ public class AssignmentFragment extends Fragment {
 
         return root;
     }
+
+    public View getViewWithCheckboxes(View view){
+        View newView = view;
+
+
+
+        return newView;
+    }
 }

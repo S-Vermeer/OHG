@@ -4,7 +4,6 @@ import android.hardware.GeomagneticField;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -64,8 +63,8 @@ public class NavigationFragment extends Fragment {
         arrowImageView = root.findViewById(R.id.imageView);
         gpsTextView = root.findViewById(R.id.gpsText);
         arrowImageView.setRotation(80);
-        info = root.findViewById(R.id.infoOverlayButton);
-        locationIndex = root.findViewById(R.id.gpsText2);
+        info = root.findViewById(R.id.checkAnswerButton);
+        locationIndex = root.findViewById(R.id.assignmentQuestionText);
 
 
         //(•◡•)/ Assign Listeners (•◡•)/
