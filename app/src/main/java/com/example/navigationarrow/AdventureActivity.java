@@ -87,7 +87,7 @@ public class AdventureActivity extends AppCompatActivity {
 
     /* ʕ•́ᴥ•̀ʔっ SENSOR VAR END ʕ•́ᴥ•̀ʔっ */
 
-    Adventure adventure;
+    public Adventure adventure;
 
 
 

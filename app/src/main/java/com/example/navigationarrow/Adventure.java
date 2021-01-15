@@ -2,7 +2,6 @@ package com.example.navigationarrow;
 
 import android.location.Location;
 
-import java.sql.Time;
 import java.util.ArrayList;
 
 public class Adventure {
@@ -82,6 +81,10 @@ public class Adventure {
         }
 
         return partsToRead;
+    }
+
+    public Assignment getAssignmentsById(int id){
+        return dictionary.getAssignmentList().get(id);
     }
 
 
